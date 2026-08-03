@@ -1,0 +1,84 @@
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+
+  &__container {
+    width: 100%;
+    max-width: 75rem;
+    min-height: 4rem;
+    margin: 0 auto;
+    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  &__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    color: #0f172a;
+    font-size: 1.25rem;
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  &__logo {
+    width: 2.25rem;
+    height: 2.25rem;
+    display: grid;
+    place-items: center;
+    color: #ffffff;
+    background: #2563eb;
+    border-radius: 0.625rem;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__user {
+    display: none;
+    color: #64748b;
+    font-size: 0.9rem;
+  }
+
+  &__action {
+    min-height: 2.5rem;
+    padding: 0.5rem 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #2563eb;
+    background: transparent;
+    border: 0;
+    border-radius: 0.5rem;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+      background: #eff6ff;
+    }
+
+    &:focus-visible {
+      outline: 0.1875rem solid rgba(37, 99, 235, 0.25);
+      outline-offset: 0.125rem;
+    }
+  }
+}
+
+@media (min-width: 40rem) {
+  .app-header {
+    &__user {
+      display: inline;
+    }
+  }
+}

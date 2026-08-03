@@ -9,13 +9,23 @@ import RegisterPage from "../pages/Register/RegisterPage";
 import NewReportPage from "../pages/Report/NewReportPage";
 import AdminDashboardPage from "../pages/Admin/AdminDashboardPage";
 
+function MapPage() {
+  return <h1>Map</h1>;
+}
+
+function MyReportsPage() {
+  return <h1>My reports</h1>;
+}
+
+function ProfilePage() {
+  return <h1>Profile</h1>;
+}
+
 function AppRoutes() {
   return (
     <Routes>
-      
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-
 
       <Route element={<CitizenLayout />}>
         <Route path="/" element={<HomePage />} />
@@ -28,12 +38,31 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
-      </Route>
 
+        <Route path="/map" element={<MapPage />} />
+
+        <Route
+          path="/my-reports"
+          element={
+            <ProtectedRoute>
+              <MyReportsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+      </Route>
 
       <Route
         element={
-          <ProtectedRoute>
+          <ProtectedRoute roles={["Admin"]}>
             <AdminLayout />
           </ProtectedRoute>
         }
