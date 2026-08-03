@@ -10,6 +10,8 @@ import { MapPin } from "lucide-react";
 
 import { GoogleLogin } from "@react-oauth/google";
 
+import { getErrorMessage } from "../../utils/getErrorMessage";
+
 function LoginPage() {
   const [serverError, setServerError] = useState("");
 
@@ -54,12 +56,12 @@ function LoginPage() {
 
       navigate(isAdmin ? "/admin" : "/", { replace: true });
     } catch (error) {
-      const message =
-        error.response?.data?.message ||
-        error.response?.data?.title ||
-        "Invalid email or password.";
-
-      setServerError(message);
+      setServerError(
+        getErrorMessage(error, {
+          fallbackMessage: "Login failed. Please try again.",
+          unauthorizedMessage: "Email or password is incorrect.",
+        }),
+      );
     }
   };
 
@@ -91,15 +93,12 @@ function LoginPage() {
         replace: true,
       });
     } catch (error) {
-      const responseData = error.response?.data;
-
-      const message =
-        responseData?.message ||
-        responseData?.title ||
-        (typeof responseData === "string" ? responseData : null) ||
-        "Google login failed. Please try again.";
-
-      setServerError(message);
+      setServerError(
+        getErrorMessage(error, {
+          fallbackMessage: "Google login failed. Please try again.",
+          unauthorizedMessage: "Google authentication was unsuccessful.",
+        }),
+      );
     }
   };
 
@@ -197,7 +196,7 @@ function LoginPage() {
             {isSubmitting ? "Logging in..." : "Log in"}
           </button>
         </form>
-        
+
         <div className="login-card__divider">
           <span>or</span>
         </div>

@@ -8,6 +8,7 @@ import LoginPage from "../pages/Login/LoginPage";
 import RegisterPage from "../pages/Register/RegisterPage";
 import NewReportPage from "../pages/Report/NewReportPage";
 import AdminDashboardPage from "../pages/Admin/AdminDashboardPage";
+import ReportDetailPage from "../pages/Report/ReportDetailPage";
 
 function MapPage() {
   return <h1>Map</h1>;
@@ -29,6 +30,7 @@ function AppRoutes() {
 
       <Route element={<CitizenLayout />}>
         <Route path="/" element={<HomePage />} />
+        <Route path="/reports/:id" element={<ReportDetailPage />} />
 
         <Route
           path="/report/new"

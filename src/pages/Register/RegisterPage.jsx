@@ -54,15 +54,12 @@ function RegisterPage() {
 
       navigate("/", { replace: true });
     } catch (error) {
-      const responseData = error.response?.data;
-
-      const message =
-        responseData?.message ||
-        responseData?.title ||
-        (typeof responseData === "string" ? responseData : null) ||
-        "Registration failed. Please try again.";
-
-      setServerError(message);
+      setServerError(
+        getErrorMessage(error, {
+          fallbackMessage: "Registration failed. Please try again.",
+          unauthorizedMessage: "Registration could not be completed.",
+        }),
+      );
     }
   };
 
