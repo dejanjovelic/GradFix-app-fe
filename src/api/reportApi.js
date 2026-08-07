@@ -33,3 +33,21 @@ export async function getReports(filters = {}) {
 
   return response.data;
 }
+
+export async function getMapReports(filters = {}) {
+  const params = {};
+
+  if (filters.categoryId) {
+    params.categoryId = filters.categoryId;
+  }
+
+  if (filters.statusId) {
+    params.statusId = filters.statusId;
+  }
+
+  const response = await api.get("/reports/map", {
+    params,
+  });
+
+  return response.data;
+}
