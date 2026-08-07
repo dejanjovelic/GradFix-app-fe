@@ -1,346 +1,267 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import {
-  CalendarDays,
-  ImageOff,
-  MapPin,
-  Plus,
-} from "lucide-react";
 
+import { getReports, getReportById } from "../../api/reportApi";
 import { getCategories } from "../../api/categoryApi";
-import { getReports } from "../../api/reportApi";
 import { getReportStatuses } from "../../api/reportStatusApi";
 import { getErrorMessage } from "../../utils/getErrorMessage";
 
+import AdminReportListItem from "./components/AdminReportListItem";
+import AdminReportDetail from "./components/AdminReportDetail";
+
 import "./admin-dashboard-page.scss";
 
-const backendUrl =
-  import.meta.env.VITE_BACKEND_URL;
+const DEFAULT_PAGE_SIZE = 6;
 
-function getImageUrl(path) {
-  if (!path) {
-    return null;
-  }
-
-  if (
-    path.startsWith("http://") ||
-    path.startsWith("https://")
-  ) {
-    return path;
-  }
-
-  return `${backendUrl}${path}`;
-}
-
-function HomePage() {
+function AdminDashboardPage() {
   const [reports, setReports] = useState([]);
   const [categories, setCategories] = useState([]);
   const [statuses, setStatuses] = useState([]);
 
+  const [selectedReport, setSelectedReport] = useState(null);
+
   const [categoryId, setCategoryId] = useState("");
   const [statusId, setStatusId] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(6);
+  const [pageSize] = useState(DEFAULT_PAGE_SIZE);
 
-  const [totalPages, setTotalPages] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [isLoadingSelectedReport, setIsLoadingSelectedReport] = useState(false);
+
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+
   useEffect(() => {
-    async function loadFilters() {
+    async function loadLookups() {
       try {
-        const [categoryData, statusData] =
-          await Promise.all([
-            getCategories(),
-            getReportStatuses(),
-          ]);
+        const [categoryData, statusData] = await Promise.all([
+          getCategories(),
+          getReportStatuses(),
+        ]);
 
         setCategories(categoryData);
         setStatuses(statusData);
-      } catch (requestError) {
+      } catch (error) {
         setError(
-          getErrorMessage(requestError, {
-            fallbackMessage:
-              "Filters could not be loaded.",
-          })
+          getErrorMessage(error, {
+            fallbackMessage: "Report filters could not be loaded.",
+          }),
         );
       }
     }
 
-    loadFilters();
+    loadLookups();
   }, []);
 
-  useEffect(() => {
-    async function loadReports() {
+  const loadReports = async () => {
+    try {
       setIsLoading(true);
       setError("");
 
-      try {
-        const data = await getReports({
-          categoryId,
-          statusId,
-          page,
-          pageSize,
-        });
+      const data = await getReports({
+        page,
+        pageSize,
+        categoryId: categoryId || undefined,
+        statusId: statusId || undefined,
+        searchQuery: debouncedSearchQuery || undefined,
+      });
 
-        setReports(data.items);
-        setTotalPages(data.totalPages);
-        setTotalCount(data.totalCount);
-      } catch (requestError) {
-        setError(
-          getErrorMessage(requestError, {
-            fallbackMessage:
-              "Reports could not be loaded.",
-          })
-        );
-      } finally {
-        setIsLoading(false);
-      }
+      setReports(data.items ?? []);
+      setTotalPages(data.totalPages ?? 1);
+      setTotalCount(data.totalCount ?? 0);
+    } catch (error) {
+      setError(
+        getErrorMessage(error, {
+          fallbackMessage: "Reports could not be loaded.",
+        }),
+      );
+    } finally {
+      setIsLoading(false);
     }
+  };
 
+  useEffect(() => {
     loadReports();
-  }, [
-    categoryId,
-    statusId,
-    page,
-    pageSize,
-  ]);
+  }, [page, categoryId, statusId, debouncedSearchQuery]);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery.trim());
+
+      setPage(1);
+    }, 400);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [searchQuery]);
+
+  const handleSelectReport = async (reportId) => {
+    try {
+      setIsLoadingSelectedReport(true);
+      setError("");
+
+      const report = await getReportById(reportId);
+
+      setSelectedReport(report);
+    } catch (error) {
+      setError(
+        getErrorMessage(error, {
+          fallbackMessage: "The selected report could not be loaded.",
+        }),
+      );
+    } finally {
+      setIsLoadingSelectedReport(false);
+    }
+  };
+
+  const handleReportUpdated = async (updatedReport) => {
+    setSelectedReport(updatedReport);
+
+    await loadReports();
+  };
 
   const handleCategoryChange = (event) => {
     setCategoryId(event.target.value);
     setPage(1);
+    setSelectedReport(null);
   };
 
   const handleStatusChange = (event) => {
     setStatusId(event.target.value);
     setPage(1);
+    setSelectedReport(null);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+    setSelectedReport(null);
   };
 
   return (
-    <section className="home-page">
-      <header className="home-page__hero">
-        <div>
-          <span>Improve your city</span>
+    <section className="admin-dashboard">
+      <header className="admin-dashboard__header">
+        <span className="admin-dashboard__eyebrow">Administration</span>
 
-          <h1>Report local problems</h1>
+        <h1>Reports management</h1>
 
-          <p>
-            Browse reported issues or submit a new
-            report.
-          </p>
-        </div>
-
-        <Link
-          className="home-page__report-button"
-          to="/report/new"
-        >
-          <Plus size={20} />
-          New report
-        </Link>
+        <p>Review citizen reports and update their status.</p>
       </header>
 
-      <div className="home-page__filters">
-        <label>
-          <span>Category</span>
+      <div className="admin-dashboard__layout">
+        <aside className="admin-reports-panel">
+          <div className="admin-reports-panel__filters">
+            <div className="admin-reports-panel__search">
+              <label htmlFor="admin-search">Search</label>
 
-          <select
-            value={categoryId}
-            onChange={handleCategoryChange}
-          >
-            <option value="">
-              All categories
-            </option>
+              <input
+                id="admin-search"
+                type="search"
+                value={searchQuery}
+                placeholder="By title, description or address..."
+                onChange={handleSearchChange}
+              />
+            </div>
 
-            {categories.map((category) => (
-              <option
-                key={category.id}
-                value={category.id}
-              >
-                {category.name}
-              </option>
-            ))}
-          </select>
-        </label>
+            <div className="admin-reports-panel__filter-row">
+              <div>
+                <label htmlFor="admin-category">Category</label>
 
-        <label>
-          <span>Status</span>
-
-          <select
-            value={statusId}
-            onChange={handleStatusChange}
-          >
-            <option value="">
-              All statuses
-            </option>
-
-            {statuses.map((status) => (
-              <option
-                key={status.id}
-                value={status.id}
-              >
-                {status.name}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-
-      {!isLoading && !error && (
-        <p className="home-page__count">
-          {totalCount} reports found
-        </p>
-      )}
-
-      {error && (
-        <div
-          className="home-page__error"
-          role="alert"
-        >
-          {error}
-        </div>
-      )}
-
-      {isLoading && (
-        <p className="home-page__state">
-          Loading reports...
-        </p>
-      )}
-
-      {!isLoading &&
-        !error &&
-        reports.length === 0 && (
-          <div className="home-page__state">
-            <h2>No reports found</h2>
-
-            <p>
-              Try changing the filters or submit
-              the first report.
-            </p>
-          </div>
-        )}
-
-      {!isLoading && reports.length > 0 && (
-        <div className="report-list">
-          {reports.map((report) => {
-            const imageUrl = getImageUrl(
-              report.primaryImage?.filePath
-            );
-
-            return (
-              <article
-                className="report-card"
-                key={report.id}
-              >
-                <Link
-                  className="report-card__image"
-                  to={`/reports/${report.id}`}
+                <select
+                  id="admin-category"
+                  value={categoryId}
+                  onChange={handleCategoryChange}
                 >
-                  {imageUrl ? (
-                    <img
-                      src={imageUrl}
-                      alt={
-                        report.title ||
-                        `Report ${report.id}`
-                      }
-                    />
-                  ) : (
-                    <ImageOff size={32} />
-                  )}
-                </Link>
+                  <option value="">All categories</option>
 
-                <div className="report-card__content">
-                  <div className="report-card__labels">
-                    <span>
-                      {report.category?.name}
-                    </span>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-                    <span className="report-card__status">
-                      {report.status?.name}
-                    </span>
-                  </div>
+              <div>
+                <label htmlFor="admin-status">Status</label>
 
-                  <h2>
-                    <Link
-                      to={`/reports/${report.id}`}
-                    >
-                      {report.title ||
-                        `Report #${report.id}`}
-                    </Link>
-                  </h2>
+                <select
+                  id="admin-status"
+                  value={statusId}
+                  onChange={handleStatusChange}
+                >
+                  <option value="">All statuses</option>
 
-                  <p>
-                    {report.description.length > 130
-                      ? `${report.description.slice(
-                          0,
-                          130
-                        )}…`
-                      : report.description}
-                  </p>
+                  {statuses.map((status) => (
+                    <option key={status.id} value={status.id}>
+                      {status.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
 
-                  <div className="report-card__metadata">
-                    <span>
-                      <MapPin size={16} />
+          <div className="admin-reports-panel__list">
+            {isLoading ? (
+              <p>Loading reports...</p>
+            ) : error ? (
+              <p className="admin-reports-panel__error" role="alert">
+                {error}
+              </p>
+            ) : reports.length === 0 ? (
+              <p>No reports found.</p>
+            ) : (
+              reports.map((report) => (
+                <AdminReportListItem
+                  key={report.id}
+                  report={report}
+                  isSelected={selectedReport?.id === report.id}
+                  onSelect={handleSelectReport}
+                />
+              ))
+            )}
+          </div>
 
-                      {report.addressFallback ||
-                        "GPS location"}
-                    </span>
+          {totalPages > 1 && (
+            <div className="admin-reports-panel__pagination">
+              <button
+                type="button"
+                disabled={page <= 1}
+                onClick={() => setPage((current) => current - 1)}
+              >
+                Previous
+              </button>
 
-                    <span>
-                      <CalendarDays size={16} />
+              <span>
+                Page {page} of {totalPages}
+              </span>
 
-                      {new Date(
-                        report.createdAt
-                      ).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      )}
+              <button
+                type="button"
+                disabled={page >= totalPages}
+                onClick={() => setPage((current) => current + 1)}
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </aside>
 
-      {!isLoading && totalPages > 1 && (
-        <nav
-          className="pagination"
-          aria-label="Reports pagination"
-        >
-          <button
-            type="button"
-            disabled={page === 1}
-            onClick={() =>
-              setPage(
-                (currentPage) =>
-                  currentPage - 1
-              )
-            }
-          >
-            Previous
-          </button>
-
-          <span>
-            Page {page} of {totalPages}
-          </span>
-
-          <button
-            type="button"
-            disabled={page === totalPages}
-            onClick={() =>
-              setPage(
-                (currentPage) =>
-                  currentPage + 1
-              )
-            }
-          >
-            Next
-          </button>
-        </nav>
-      )}
+        <AdminReportDetail
+          report={selectedReport}
+          statuses={statuses}
+          isLoading={isLoadingSelectedReport}
+          onReportUpdated={handleReportUpdated}
+        />
+      </div>
     </section>
   );
 }
 
-export default HomePage;
+export default AdminDashboardPage;

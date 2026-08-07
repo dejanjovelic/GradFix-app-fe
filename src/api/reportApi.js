@@ -26,6 +26,10 @@ export async function getReports(filters = {}) {
     params.statusId = filters.statusId;
   }
 
+  if (filters.searchQuery) {
+    params.searchQuery = filters.searchQuery;
+  }
+
   const response = await api.get(
     "/reports",
     { params }
@@ -48,6 +52,18 @@ export async function getMapReports(filters = {}) {
   const response = await api.get("/reports/map", {
     params,
   });
+
+  return response.data;
+}
+
+export async function updateReportStatus(
+  reportId,
+  data,
+) {
+  const response = await api.patch(
+    `/reports/${reportId}/status`,
+    data,
+  );
 
   return response.data;
 }

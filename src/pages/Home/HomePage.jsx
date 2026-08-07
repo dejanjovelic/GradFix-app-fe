@@ -141,10 +141,11 @@ function HomePage() {
 
       try {
         const data = await getReports({
-          categoryId,
-          statusId,
           page,
           pageSize,
+          categoryId: categoryId || undefined,
+          statusId: statusId || undefined,
+          searchQuery: searchQuery.trim() || undefined,
         });
 
         if (isCancelled) {
@@ -224,10 +225,10 @@ function HomePage() {
 
       try {
         const data = await getMapReports({
-          categoryId,
-          statusId,
+          categoryId: categoryId || undefined,
+          statusId: statusId || undefined,
         });
-console.log("Map reports loaded:", data);
+        
         if (!isCancelled) {
           setMapReports(data ?? []);
         }

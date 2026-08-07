@@ -1,28 +1,9 @@
 import React from "react";
 import { ImageOff } from "lucide-react";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+import { getImageUrl } from "../../../utils/getImageUrl";
+import { formatDate } from "../../../utils/formatDate";
 
-function getImageUrl(path) {
-  if (!path) {
-    return null;
-  }
-
-  if (
-    path.startsWith("http://") ||
-    path.startsWith("https://")
-  ) {
-    return path;
-  }
-
-  return `${backendUrl}${path}`;
-}
-
-function formatDate(date) {
-  return new Intl.DateTimeFormat("en-GB", {
-    dateStyle: "medium",
-  }).format(new Date(date));
-}
 
 function PublicReportListItem({
   report,
