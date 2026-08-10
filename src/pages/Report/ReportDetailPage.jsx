@@ -3,29 +3,11 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import { ArrowLeft, CalendarDays, LoaderCircle, MapPin } from "lucide-react";
 
 import { getReportById } from "../../api/reportApi";
+import { getErrorMessage } from "../../utils/getErrorMessage";
+import { formatDateTime } from "../../utils/formatDateTime";
+import { getImageUrl } from "../../utils/getImageUrl";
 
 import "./report-detail-page.scss";
-
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
-function getImageUrl(filePath) {
-  if (!filePath) {
-    return "";
-  }
-
-  if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
-    return filePath;
-  }
-
-  return `${backendUrl}${filePath}`;
-}
-
-function formatDate(date) {
-  return new Intl.DateTimeFormat("en-GB", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(date));
-}
 
 function ReportDetailPage() {
   const { id } = useParams();
@@ -53,7 +35,7 @@ function ReportDetailPage() {
           }),
         );
 
-        if (requestError.response?.status === 404) {
+        if (error.response?.status === 404) {
           setError("This report does not exist.");
         } else {
           setError("The report could not be loaded. Please try again.");
@@ -147,7 +129,7 @@ function ReportDetailPage() {
                 <CalendarDays size={18} />
                 Submitted
               </dt>
-              <dd>{formatDate(report.createdAt)}</dd>
+              <dd>{formatDateTime(report.createdAt)}</dd>
             </div>
 
             <div>
@@ -179,12 +161,43 @@ function ReportDetailPage() {
                   new Date(first.changedAt) - new Date(second.changedAt),
               )
               .map((history) => (
-                <li key={history.id}>
-                  <strong>{history.newStatus?.name}</strong>
+                <li className="report-detail__timeline-item" key={history.id}>
+                  <div className="report-detail__timeline-marker" />
 
-                  <span>{formatDate(history.changedAt)}</span>
+                  <div className="report-detail__timeline-content">
+                    <div className="report-detail__timeline-header">
+                      <strong>
+                        {history.newStatus?.name ?? "Status changed"}
+                      </strong>
 
-                  {history.comment && <p>{history.comment}</p>}
+                      <time dateTime={history.changedAt}>
+                        {formatDateTime(history.changedAt)}
+                      </time>
+                    </div>
+
+                    {history.oldStatus?.name && (
+                      <p className="report-detail__timeline-transition">
+                        {history.oldStatus.name}
+                        {" → "}
+                        {history.newStatus?.name}
+                      </p>
+                    )}
+
+                    {history.comment && (
+                      <p className="report-detail__timeline-comment">
+                        {history.comment}
+                      </p>
+                    )}
+
+                    {history.changedByUser && (
+                      <span className="report-detail__timeline-user">
+                        Changed by{" "}
+                        {history.changedByUser.name ||
+                          history.changedByUser.email ||
+                          "administrator"}
+                      </span>
+                    )}
+                  </div>
                 </li>
               ))}
           </ol>

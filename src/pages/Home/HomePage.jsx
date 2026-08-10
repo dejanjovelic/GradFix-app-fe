@@ -145,7 +145,6 @@ function HomePage() {
           pageSize,
           categoryId: categoryId || undefined,
           statusId: statusId || undefined,
-          searchQuery: searchQuery.trim() || undefined,
         });
 
         if (isCancelled) {
