@@ -67,3 +67,28 @@ export async function updateReportStatus(
 
   return response.data;
 }
+
+export async function getMyReports(filters = {}) {
+  const params = {
+    page: filters.page || 1,
+    pageSize: filters.pageSize || 6,
+  };
+
+  if (filters.categoryId) {
+    params.categoryId = filters.categoryId;
+  }
+
+  if (filters.statusId) {
+    params.statusId = filters.statusId;
+  }
+
+  if (filters.searchQuery) {
+    params.searchQuery = filters.searchQuery;
+  }
+
+  const response = await api.get("/reports/mine", {
+    params,
+  });
+
+  return response.data;
+}
