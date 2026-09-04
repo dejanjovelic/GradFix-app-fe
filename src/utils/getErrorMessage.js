@@ -26,6 +26,7 @@ export function getErrorMessage(error, options = {}) {
       return (
         responseData?.detail ||
         responseData?.message ||
+        (typeof responseData?.error === "string" && responseData.error) ||
         "Please check the entered information and try again."
       );
 

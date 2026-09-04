@@ -154,6 +154,12 @@ Images are sent as `multipart/form-data` and stored by the backend.
 
 ---
 
+## Registration error regression checks
+
+Run `npm test` with a recent Node.js version supporting automatic ES module detection (verified with Node 26.5.1). The five dependency-free tests cover API error messages, validation precedence, invalid payloads, safe server errors and network failures.
+
+Browser regression check: register with an email already present in the test database. The form should show the backend rejection message, keep the submit button usable and produce no `getErrorMessage is not defined` error.
+
 ## AI Usage
 
 AI tools (ChatGPT) were used during the development process as a programming assistant for:

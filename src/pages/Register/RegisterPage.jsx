@@ -5,6 +5,7 @@ import { MapPin } from "lucide-react";
 
 import { registerUser } from "../../api/authApi";
 import { useAuth } from "../../hooks/useAuth";
+import { getErrorMessage } from "../../utils/getErrorMessage";
 
 import "./register-page.scss";
 
