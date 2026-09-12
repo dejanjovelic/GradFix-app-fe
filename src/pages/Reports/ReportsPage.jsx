@@ -7,6 +7,7 @@ import { readReportFilters, updateReportFilter } from "../../utils/reportFilters
 import { useReportLookups } from "../../hooks/useReportLookups";
 import ReportFilters from "../../components/reports/ReportFilters";
 import ReportCard from "../../components/reports/ReportCard";
+import ReportsUnavailable from "../../components/reports/ReportsUnavailable";
 import "./reports-page.scss";
 
 export default function ReportsPage() {
@@ -61,11 +62,7 @@ export default function ReportsPage() {
       <div className="reports-list__heading"><div>
         <span className="civic-eyebrow">Community reports</span><h2 className="civic-title" id="reports-heading">What needs attention</h2>
       </div><Link className="civic-link" to="/map">Explore the map <ArrowRight size={17} aria-hidden="true" /></Link></div>
-      {isPageUnavailable ? <div role="alert" className="civic-feedback civic-feedback--error reports-unavailable">
-        <div><strong>Reports are temporarily unavailable</strong>
-          <p>Unable to connect. Please check your connection or try again later.</p></div>
-        <button type="button" onClick={retryPage}>Try again</button>
-      </div> : <>
+      {isPageUnavailable ? <ReportsUnavailable onRetry={retryPage} /> : <>
         <ReportFilters filters={filters} lookups={lookups} onChange={changeFilter} />
         <div className="reports-list__summary" role="status">{loading ? "Loading reports…" : error ? "Reports unavailable" : `${result.totalCount} ${result.totalCount === 1 ? "report" : "reports"} found`}</div>
         {error ? <div role="alert" className="civic-feedback civic-feedback--error">{error}<button type="button" onClick={() => setAttempt(value => value + 1)}>Try again</button></div>

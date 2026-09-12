@@ -7,6 +7,10 @@
 .civic-feedback { padding: 1.5rem; margin-block: 1rem; background: #f6f4eb; color: #42574d; line-height: 1.6; }
 .civic-feedback--error { color: #922f23; background: #fff0eb; }
 .civic-feedback button { margin-left: .75rem; min-height: 2.75rem; padding: .4rem .9rem; border: 1px solid currentColor; background: transparent; color: inherit; cursor: pointer; }
+.reports-unavailable { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; margin-top: 2rem; }
+.reports-unavailable strong { display: block; margin-bottom: .2rem; font-size: 1rem; }
+.reports-unavailable p { margin: 0; }
+.reports-unavailable button { flex-shrink: 0; }
 .citizen-layout :is(a, button, input, select, summary):focus-visible { outline: 3px solid #bb4e36; outline-offset: 3px; }
 .skip-link { position: fixed; top: -5rem; left: 1rem; z-index: 2000; padding: 1rem; background: #fff; color: #194d3e; }
 .skip-link:focus { top: .5rem; }
@@ -15,3 +19,7 @@
 .app-footer a { color: #fff; font-weight: 700; text-decoration: none; }
 .app-footer p { margin: 0; line-height: 1.6; }
 @media (prefers-reduced-motion: reduce) { .citizen-layout *, .app-header * { scroll-behavior: auto !important; transition: none !important; } }
+@media (max-width: 40rem) {
+  .reports-unavailable { align-items: flex-start; flex-direction: column; }
+  .reports-unavailable button { margin-left: 0; }
+}

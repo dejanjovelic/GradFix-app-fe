@@ -6,6 +6,7 @@ import { useReportLookups } from "../../hooks/useReportLookups";
 import { getErrorMessage } from "../../utils/getErrorMessage";
 import { hasReportCoordinates, readReportFilters, updateReportFilter } from "../../utils/reportFilters";
 import ReportFilters from "../../components/reports/ReportFilters";
+import ReportsUnavailable from "../../components/reports/ReportsUnavailable";
 import ReportsMap from "./ReportsMap";
 import "./map-page.scss";
 
@@ -18,6 +19,11 @@ export default function MapPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
+  const isPageUnavailable = Boolean(error && lookups.error);
+  const retryPage = () => {
+    lookups.retry();
+    setAttempt(value => value + 1);
+  };
   useEffect(() => { document.title = "Map | GradFix"; }, []);
   useEffect(() => {
     let active = true;
@@ -36,11 +42,13 @@ export default function MapPage() {
     <div className="map-page__intro"><p>Select a marker to open its public details.</p>
       <Link className="civic-link" to="/"><ArrowLeft size={16} aria-hidden="true" />Browse reports</Link>
     </div>
-    <ReportFilters showSearch={false} filters={filters} lookups={lookups}
-      onChange={(key, value) => setParams(current => updateReportFilter(current, key, value), { replace: true })} />
-    <p className="map-page__count" role="status">{loading ? "Loading report locations…" : error ? "Map data unavailable" : `${reports.length} ${reports.length === 1 ? "report" : "reports"} on the map`}</p>
-    {error && <div className="civic-feedback civic-feedback--error" role="alert">{error}<button type="button" onClick={() => setAttempt(value => value + 1)}>Retry map</button></div>}
-    {!loading && !error && !reports.length && <p className="civic-feedback">No reported locations match these filters.</p>}
-    <ReportsMap reports={loading ? [] : reports} />
+    {isPageUnavailable ? <ReportsUnavailable onRetry={retryPage} /> : <>
+      <ReportFilters showSearch={false} filters={filters} lookups={lookups}
+        onChange={(key, value) => setParams(current => updateReportFilter(current, key, value), { replace: true })} />
+      {!error && <p className="map-page__count" role="status">{loading ? "Loading report locations…" : `${reports.length} ${reports.length === 1 ? "report" : "reports"} on the map`}</p>}
+      {error ? <div className="civic-feedback civic-feedback--error" role="alert">Map reports are temporarily unavailable.<button type="button" onClick={() => setAttempt(value => value + 1)}>Try again</button></div>
+        : <>{!loading && !reports.length && <p className="civic-feedback">No reported locations match these filters.</p>}
+          <ReportsMap reports={loading ? [] : reports} /></>}
+    </>}
   </section>;
 }
