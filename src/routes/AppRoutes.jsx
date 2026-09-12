@@ -21,10 +21,6 @@ function ReportsRedirect() {
   return <Navigate to={{ pathname: "/", search, hash }} replace />;
 }
 
-function ProfilePage() {
-  return <h1>Profile</h1>;
-}
-
 function AppRoutes() {
   return (
     <Routes>
@@ -56,14 +52,6 @@ function AppRoutes() {
           }
         />
 
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <ProfilePage />
-            </ProtectedRoute>
-          }
-        />
       </Route>
 
       <Route

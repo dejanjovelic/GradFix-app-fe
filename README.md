@@ -161,7 +161,7 @@ Images are sent as `multipart/form-data` and stored by the backend.
 
 Run `npm test` with a recent Node.js version supporting automatic ES module detection (verified with Node 26.5.1). The eleven dependency-free tests cover API error messages, validation precedence, invalid payloads, safe server errors, network failures, report filter URL state, pagination resets and map coordinate validation. Run `npm run build` to check the production build.
 
-The public landing page is Reports (`/`, with `/reports` as an alias). It contains the introduction, filters and paginated report cards. `/map` loads report locations independently. Main navigation is in the responsive header; authenticated citizens can find My reports and Profile in their account menu. Search, category, status and page are stored in the URL so reloading and browser Back retain the current selection.
+The public landing page is Reports (`/`, with `/reports` as an alias). It contains the introduction, filters and paginated report cards. `/map` loads report locations independently. Main navigation is in the responsive header; authenticated citizens can find My reports in their account menu. Search, category, status and page are stored in the URL so reloading and browser Back retain the current selection.
 
 Manual checks: search for an existing and nonexistent report; combine category/status filters; open a card and use browser Back; open a map marker and its detail link; check signed-in and signed-out navigation at desktop and mobile widths. Bundle splitting and dependency optimization are deferred to a separate change.
 

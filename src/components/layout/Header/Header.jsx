@@ -46,7 +46,6 @@ export default function Header() {
               <summary><span>{name}</span><ChevronDown size={14} aria-hidden="true" /></summary>
               <nav className="account-menu__links" aria-label="Account navigation">
                 {hasRole("Citizen") && <Link to="/my-reports">My reports</Link>}
-                <Link to="/profile">Profile</Link>
                 <button type="button" onClick={() => { logout(); navigate("/login"); }}>
                   <LogOut size={16} aria-hidden="true" />Log out
                 </button>
