@@ -1,84 +1,38 @@
 .app-header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-
-  &__container {
-    width: 100%;
-    max-width: 75rem;
-    min-height: 4rem;
-    margin: 0 auto;
-    padding: 0 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-  }
-
-  &__brand {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.625rem;
-    color: #0f172a;
-    font-size: 1.25rem;
-    font-weight: 800;
-    text-decoration: none;
-  }
-
-  &__logo {
-    width: 2.25rem;
-    height: 2.25rem;
-    display: grid;
-    place-items: center;
-    color: #ffffff;
-    background: #2563eb;
-    border-radius: 0.625rem;
-  }
-
-  &__actions {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  &__user {
-    display: none;
-    color: #64748b;
-    font-size: 0.9rem;
-  }
-
-  &__action {
-    min-height: 2.5rem;
-    padding: 0.5rem 0.75rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #2563eb;
-    background: transparent;
-    border: 0;
-    border-radius: 0.5rem;
-    font: inherit;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-
-    &:hover {
-      background: #eff6ff;
-    }
-
-    &:focus-visible {
-      outline: 0.1875rem solid rgba(37, 99, 235, 0.25);
-      outline-offset: 0.125rem;
-    }
+  position: sticky; top: 0; z-index: 1100; background: #fff; border-bottom: 1px solid #dce2dc; font-family: Arial, Helvetica, sans-serif;
+  &__container { max-width: 82rem; margin: auto; padding: 0 1.25rem; display: flex; align-items: center; flex-wrap: wrap; gap: 0 1.5rem; }
+  &__brand { display: inline-flex; align-items: center; gap: .6rem; min-height: 4.5rem; color: #14261f; text-decoration: none; font: 700 1.65rem Georgia, serif; }
+  &__logo { display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border-radius: 50%; background: #ee6b51; color: #fff; }
+  &__navigation { order: 3; width: 100%; display: flex; align-items: center; gap: 1.5rem; border-top: 1px solid #edf0ec; }
+  &__navigation a, &__login { display: inline-flex; align-items: center; min-height: 3rem; color: #194d3e; font-size: .9rem; font-weight: 700; text-decoration: none; white-space: nowrap; }
+  &__navigation a:hover, &__login:hover { text-decoration: underline; text-underline-offset: .3rem; }
+  &__navigation a.active { color: #b13f2d; box-shadow: inset 0 -2px #ee6b51; }
+  &__account { margin-left: auto; min-width: 0; max-width: 48%; }
+  a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid #bd513a; outline-offset: 4px; }
+}
+.account-menu {
+  position: relative;
+  summary { display: flex; align-items: center; gap: .4rem; min-height: 2.75rem; cursor: pointer; list-style: none; color: #42574d; font-size: .85rem; font-weight: 700; }
+  summary::-webkit-details-marker { display: none; }
+  summary span { max-width: 11rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  summary svg { flex-shrink: 0; color: #b13f2d; }
+  &__links { position: absolute; top: calc(100% + .25rem); right: 0; min-width: 11rem; padding: .5rem; background: #fff; border: 1px solid #dce2dc; border-radius: .35rem; box-shadow: 0 .5rem 2rem #14261f18; }
+  &__links a, &__links button { display: flex; align-items: center; gap: .5rem; width: 100%; min-height: 2.75rem; padding: .65rem .8rem; border: 0; background: none; font: inherit; font-size: .9rem; text-align: left; color: #194d3e; text-decoration: none; cursor: pointer; }
+  &__links a:hover, &__links button:hover { background: #f6f4eb; }
+}
+@media (min-width: 48rem) {
+  .app-header {
+    &__container { flex-wrap: nowrap; }
+    &__navigation { order: initial; width: auto; margin-left: auto; border: 0; }
+    &__navigation a { min-height: 4.5rem; }
+    &__account { margin-left: 0; }
   }
 }
-
-@media (min-width: 40rem) {
-  .app-header {
-    &__user {
-      display: inline;
-    }
-  }
+@media (max-width: 23rem) {
+  .app-header__container { column-gap: .5rem; }
+  .app-header__brand { font-size: 1.35rem; gap: .4rem; }
+  .app-header__logo { width: 1.9rem; height: 1.9rem; }
+  .app-header__navigation { gap: 1rem; }
+  .app-header__navigation a { font-size: .82rem; }
+  .account-menu summary span { max-width: 5.5rem; }
 }

@@ -3,3 +3,6 @@
 *::after {
     box-sizing: border-box;
 }
+
+body { margin: 0; color: #14261f; font-family: Arial, Helvetica, sans-serif; }
+button, input, select, textarea { font: inherit; }

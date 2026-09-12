@@ -1,0 +1,10 @@
+.map-page { padding-block: 4.5rem; max-width: 74rem; }
+.map-page__intro { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem; margin-top: 1rem; }
+.map-page__intro p { margin: 0; line-height: 1.6; color: #42574d; font-size: .95rem; }
+.map-page__count { color: #596b60; font-size: .8rem; }
+.reports-map { width: 100%; border: 1px solid #d4dbd3; }
+.reports-map__leaflet { width: 100%; height: clamp(25rem, 58vh, 36rem); z-index: 0; }
+.reports-map__popup { display: flex; flex-direction: column; gap: .4rem; max-width: 15rem; overflow-wrap: anywhere; }
+.reports-map__popup strong { color: #14261f; font-size: .9rem; }
+.reports-map__popup a { color: #194d3e; font-weight: 700; min-height: 2rem; display: inline-flex; align-items: center; }
+@media (max-width: 40rem) { .map-page { padding-block: 3rem; } }
