@@ -25,5 +25,5 @@ test("server failures do not expose internal details", () => {
 
 test("network failures have a readable message", () => {
   assert.equal(getErrorMessage({}),
-    "The server could not be reached. Check your internet connection and try again.");
+    "Unable to connect. Please check your connection or try again later.");
 });
