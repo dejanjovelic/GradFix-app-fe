@@ -18,6 +18,9 @@ This project was developed as part of the Pierre Enterprises Full Stack Test Tas
 - Select report category
 - Choose GPS location or provide a manual address
 - View report details
+- Browse public reports with search, category and status filters
+- View report locations on a separate map page
+- Track personal reports in My reports
 
 ### General
 
@@ -108,7 +111,7 @@ VITE_GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID
 Start the development server
 
 ```bash
-npm run dev
+npm start
 ```
 
 The application will be available at
@@ -154,9 +157,13 @@ Images are sent as `multipart/form-data` and stored by the backend.
 
 ---
 
-## Registration error regression checks
+## Frontend regression checks
 
-Run `npm test` with a recent Node.js version supporting automatic ES module detection (verified with Node 26.5.1). The five dependency-free tests cover API error messages, validation precedence, invalid payloads, safe server errors and network failures.
+Run `npm test` with a recent Node.js version supporting automatic ES module detection (verified with Node 26.5.1). The eleven dependency-free tests cover API error messages, validation precedence, invalid payloads, safe server errors, network failures, report filter URL state, pagination resets and map coordinate validation. Run `npm run build` to check the production build.
+
+The public landing page is Reports (`/`, with `/reports` as an alias). It contains the introduction, filters and paginated report cards. `/map` loads report locations independently. Main navigation is in the responsive header; authenticated citizens can find My reports in their account menu. Search, category, status and page are stored in the URL so reloading and browser Back retain the current selection.
+
+Manual checks: search for an existing and nonexistent report; combine category/status filters; open a card and use browser Back; open a map marker and its detail link; check signed-in and signed-out navigation at desktop and mobile widths. Bundle splitting and dependency optimization are deferred to a separate change.
 
 Browser regression check: register with an email already present in the test database. The form should show the backend rejection message, keep the submit button usable and produce no `getErrorMessage is not defined` error.
 
@@ -178,12 +185,10 @@ All generated code was manually reviewed, modified, integrated and tested before
 ## Future Improvements
 
 - Report editing
-- My Reports page
-- Report search and filtering
 - Status timeline improvements
 - Admin dashboard enhancements
 - Image optimization
-- Unit and integration tests
+- Expanded component and integration tests
 
 ---
 

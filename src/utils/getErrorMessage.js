@@ -91,10 +91,7 @@ export function getErrorMessage(error, options = {}) {
 
     default:
       if (!error.response) {
-        return (
-          "The server could not be reached. " +
-          "Check your internet connection and try again."
-        );
+        return "Unable to connect. Please check your connection or try again later.";
       }
 
       return (

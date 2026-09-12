@@ -1,58 +1,59 @@
-import React from "react";
-import { LogIn, LogOut, MapPin } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-
+import React, { useEffect, useRef } from "react";
+import { ChevronDown, LogOut } from "lucide-react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth";
-
 import "./header.scss";
 
-function Header() {
-  const { isAuthenticated, user, logout } = useAuth();
+export default function Header() {
+  const { isAuthenticated, user, logout, hasRole } = useAuth();
   const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
-
+  const { pathname } = useLocation();
+  const account = useRef(null);
+  const name = [user?.name, user?.surname].filter(Boolean).join(" ") || user?.email || "My account";
+  useEffect(() => { account.current?.removeAttribute("open"); }, [pathname]);
+  useEffect(() => {
+    const dismiss = (event) => {
+      if (!account.current?.contains(event.target)) account.current?.removeAttribute("open");
+    };
+    const escape = (event) => {
+      if (event.key === "Escape" && account.current?.open) {
+        account.current.removeAttribute("open");
+        account.current.querySelector("summary")?.focus();
+      }
+    };
+    document.addEventListener("pointerdown", dismiss);
+    document.addEventListener("keydown", escape);
+    return () => {
+      document.removeEventListener("pointerdown", dismiss);
+      document.removeEventListener("keydown", escape);
+    };
+  }, []);
   return (
     <header className="app-header">
       <div className="app-header__container">
-        <Link className="app-header__brand" to="/">
-          <span className="app-header__logo" aria-hidden="true">
-            <MapPin size={22} />
-          </span>
-
-          <span>GradFix</span>
+        <Link className="app-header__brand" to="/" aria-label="GradFix reports">
+          <span className="app-header__logo" aria-hidden="true">G</span>GradFix
         </Link>
-
-        <div className="app-header__actions">
+        <nav className="app-header__navigation" aria-label="Main navigation">
+          <NavLink to="/" end>Reports</NavLink>
+          <NavLink to="/map">Map</NavLink>
+          {!hasRole("Admin") && <NavLink to="/report/new">Report damage</NavLink>}
+          {hasRole("Admin") && <NavLink to="/admin">Administration</NavLink>}
+        </nav>
+        <div className="app-header__account">
           {isAuthenticated ? (
-            <>
-              <span className="app-header__user">
-                {user?.name || user?.email}
-              </span>
-
-              <button
-                className="app-header__action"
-                type="button"
-                onClick={handleLogout}
-                aria-label="Log out"
-              >
-                <LogOut size={20} />
-                <span>Log out</span>
-              </button>
-            </>
-          ) : (
-            <Link className="app-header__action" to="/login">
-              <LogIn size={20} />
-              <span>Log in</span>
-            </Link>
-          )}
+            <details ref={account} className="account-menu">
+              <summary><span>{name}</span><ChevronDown size={14} aria-hidden="true" /></summary>
+              <nav className="account-menu__links" aria-label="Account navigation">
+                {hasRole("Citizen") && <Link to="/my-reports">My reports</Link>}
+                <button type="button" onClick={() => { logout(); navigate("/login"); }}>
+                  <LogOut size={16} aria-hidden="true" />Log out
+                </button>
+              </nav>
+            </details>
+          ) : <Link className="app-header__login" to="/login">Log in</Link>}
         </div>
       </div>
     </header>
   );
 }
-
-export default Header;

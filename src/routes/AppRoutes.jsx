@@ -1,9 +1,10 @@
 import React from "react";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
 import CitizenLayout from "../layouts/CitizenLayout";
 import AdminLayout from "../layouts/AdminLayout";
-import HomePage from "../pages/Home/HomePage";
+import ReportsPage from "../pages/Reports/ReportsPage";
+import MapPage from "../pages/Map/MapPage";
 import LoginPage from "../pages/Login/LoginPage";
 import RegisterPage from "../pages/Register/RegisterPage";
 import NewReportPage from "../pages/Report/NewReportPage";
@@ -13,13 +14,11 @@ import MyReportsPage from "../pages/Report/MyReportsPage";
 
 import "../assets/styles/global.scss";
 
-function MapPage() {
-  return <h1>Map</h1>;
-}
 
 
-function ProfilePage() {
-  return <h1>Profile</h1>;
+function ReportsRedirect() {
+  const { search, hash } = useLocation();
+  return <Navigate to={{ pathname: "/", search, hash }} replace />;
 }
 
 function AppRoutes() {
@@ -29,7 +28,8 @@ function AppRoutes() {
       <Route path="/register" element={<RegisterPage />} />
 
       <Route element={<CitizenLayout />}>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<ReportsPage />} />
+        <Route path="/reports" element={<ReportsRedirect />} />
         <Route path="/reports/:id" element={<ReportDetailPage />} />
 
         <Route
@@ -52,14 +52,6 @@ function AppRoutes() {
           }
         />
 
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <ProfilePage />
-            </ProtectedRoute>
-          }
-        />
       </Route>
 
       <Route
