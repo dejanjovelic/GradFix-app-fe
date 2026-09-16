@@ -23,8 +23,6 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       console.log("You are not authorized. Please login again.");
 
-      // localStorage.removeItem("token");
-      // window.location.href = "/login";
     }
 
     return Promise.reject(error);
