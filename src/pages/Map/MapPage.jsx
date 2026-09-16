@@ -11,7 +11,7 @@ import {
 } from "../../utils/reportFilters";
 import ReportFilters from "../../components/reports/ReportFilters";
 import ReportsUnavailable from "../../components/reports/ReportsUnavailable";
-import ReportsMap from "./ReportsMap";
+import PublicReportsMap from "../../components/maps/PublicReportsMap";
 import FeedbackMessage from "../../components/shared/FeedbackMessage";
 import "./map-page.scss";
 
@@ -109,7 +109,7 @@ export default function MapPage() {
                   No reported locations match these filters.
                 </FeedbackMessage>
               )}
-              <ReportsMap reports={loading ? [] : reports} />
+              <PublicReportsMap reports={loading ? [] : reports} />
             </>
           )}
         </>

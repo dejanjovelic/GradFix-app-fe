@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import { Icon } from "leaflet";
+import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import { Link } from "react-router-dom";
 import markerUrl from "leaflet/dist/images/marker-icon.png";
 import markerRetinaUrl from "leaflet/dist/images/marker-icon-2x.png";
@@ -17,36 +17,40 @@ const markerIcon = new Icon({
   shadowSize: [41, 41],
 });
 
-function Viewport({ reports }) {
+function MapViewport({ reports }) {
   const map = useMap();
+
   useEffect(() => {
-    if (!reports.length) map.setView(DEFAULT_CENTER, 12);
-    else
-      map.fitBounds(
-        reports.map((report) => [report.latitude, report.longitude]),
-        { padding: [40, 40], maxZoom: 14 },
-      );
+    if (!reports.length) {
+      map.setView(DEFAULT_CENTER, 12);
+      return;
+    }
+
+    map.fitBounds(
+      reports.map((report) => [report.latitude, report.longitude]),
+      { padding: [40, 40], maxZoom: 14 },
+    );
   }, [map, reports]);
+
   useEffect(() => {
     const resize = () => map.invalidateSize({ animate: false, pan: false });
+
     if (!window.ResizeObserver) {
       window.addEventListener("resize", resize);
       return () => window.removeEventListener("resize", resize);
     }
+
     const observer = new ResizeObserver(resize);
     observer.observe(map.getContainer());
     return () => observer.disconnect();
   }, [map]);
+
   return null;
 }
 
-export default function ReportsMap({ reports }) {
+export default function PublicReportsMap({ reports }) {
   return (
-    <div
-      className="reports-map"
-      role="region"
-      aria-label="Map of reported problems"
-    >
+    <div className="reports-map" role="region" aria-label="Map of reported problems">
       <MapContainer
         className="reports-map__leaflet"
         center={DEFAULT_CENTER}
@@ -57,7 +61,7 @@ export default function ReportsMap({ reports }) {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <Viewport reports={reports} />
+        <MapViewport reports={reports} />
         {reports.map((report) => (
           <Marker
             key={report.id}

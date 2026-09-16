@@ -5,7 +5,7 @@ import { getCategories } from "../../api/categoryApi";
 import { getReportStatuses } from "../../api/reportStatusApi";
 import { getErrorMessage } from "../../utils/getErrorMessage";
 
-import AdminReportListItem from "./components/AdminReportListItem";
+import AdminReportListItem from "../../components/reports/AdminReportListItem";
 import AdminReportDetail from "./components/AdminReportDetail";
 import PageHeader from "../../components/shared/PageHeader";
 import Pagination from "../../components/shared/Pagination";

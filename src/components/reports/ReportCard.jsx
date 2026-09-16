@@ -1,15 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import { ImageOff } from "lucide-react";
-import { getImageUrl } from "../../utils/getImageUrl";
 import { formatDateTime } from "../../utils/formatDateTime";
 import { hasReportCoordinates } from "../../utils/reportFilters";
 import StatusBadge from "../shared/StatusBadge";
+import ReportThumbnail from "./ReportThumbnail";
 
 export default function ReportCard({ report }) {
-  const imageUrl = getImageUrl(report.primaryImagePath);
-  const [failed, setFailed] = useState(false);
-  useEffect(() => setFailed(false), [imageUrl]);
   const title = report.title || report.description || `Report #${report.id}`;
   const location =
     report.addressFallback ||
@@ -19,21 +15,14 @@ export default function ReportCard({ report }) {
   return (
     <article className="report-card">
       <Link to={`/reports/${report.id}`} className="report-card__link">
-        <div className="report-card__image">
-          {imageUrl && !failed ? (
-            <img
-              src={imageUrl}
-              alt={title}
-              loading="lazy"
-              onError={() => setFailed(true)}
-            />
-          ) : (
-            <div className="report-card__placeholder">
-              <ImageOff size={30} aria-hidden="true" />
-              <span>No photo available</span>
-            </div>
-          )}
-        </div>
+        <ReportThumbnail
+          imagePath={report.primaryImagePath}
+          alt={title}
+          className="report-card__image"
+          placeholderClassName="report-card__placeholder"
+          placeholderText="No photo available"
+          iconSize={30}
+        />
         <div className="report-card__body">
           <div className="report-card__labels">
             <span>{report.categoryName}</span>

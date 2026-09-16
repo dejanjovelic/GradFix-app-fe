@@ -5,12 +5,10 @@ import { getMyReports } from "../../api/reportApi";
 import { getCategories } from "../../api/categoryApi";
 import { getReportStatuses } from "../../api/reportStatusApi";
 import { getErrorMessage } from "../../utils/getErrorMessage";
-import { getImageUrl } from "../../utils/getImageUrl";
-import { formatDate } from "../../utils/formatDate";
 import FeedbackMessage from "../../components/shared/FeedbackMessage";
 import PageHeader from "../../components/shared/PageHeader";
 import Pagination from "../../components/shared/Pagination";
-import StatusBadge from "../../components/shared/StatusBadge";
+import MyReportListItem from "../../components/reports/MyReportListItem";
 
 import "./my-reports-page.scss";
 
@@ -252,62 +250,13 @@ function MyReportsPage() {
           !error &&
           reports.length > 0 && (
             <div className="my-reports-list">
-              {reports.map((report) => {
-                const imageUrl = getImageUrl(
-                  report.primaryImagePath,
-                );
-
-                return (
-                  <button
-                    key={report.id}
-                    type="button"
-                    className="my-report-item"
-                    onClick={() =>
-                      handleReportClick(report.id)
-                    }
-                  >
-                    <div className="my-report-item__image">
-                      {imageUrl ? (
-                        <img
-                          src={imageUrl}
-                          alt=""
-                        />
-                      ) : (
-                        <div className="my-report-item__image-placeholder">
-                          No image
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="my-report-item__content">
-                      <div className="my-report-item__top">
-                        <strong className="my-report-item__title">
-                          {report.title ||
-                            `Report #${report.id}`}
-                        </strong>
-
-                        <StatusBadge status={report.statusName} className="my-report-item__status" />
-                      </div>
-
-                      <span className="my-report-item__category">
-                        {report.categoryName ||
-                          "Uncategorized"}
-                      </span>
-
-                      <p className="my-report-item__description">
-                        {report.description}
-                      </p>
-
-                      <time
-                        className="my-report-item__date"
-                        dateTime={report.createdAt}
-                      >
-                        {formatDate(report.createdAt)}
-                      </time>
-                    </div>
-                  </button>
-                );
-              })}
+              {reports.map((report) => (
+                <MyReportListItem
+                  key={report.id}
+                  report={report}
+                  onSelect={handleReportClick}
+                />
+              ))}
             </div>
           )}
       </div>

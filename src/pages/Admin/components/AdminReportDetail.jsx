@@ -1,20 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { LoaderCircle, ImageOff } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 
 import { updateReportStatus } from "../../../api/reportApi.js";
 import { getErrorMessage } from "../../../utils/getErrorMessage";
 
-import { getImageUrl } from "../../../utils/getImageUrl";
 import LoadingState from "../../../components/shared/LoadingState";
 import StatusBadge from "../../../components/shared/StatusBadge";
+import ReportThumbnail from "../../../components/reports/ReportThumbnail";
 
 function AdminReportDetail({ report, statuses, isLoading, onReportUpdated }) {
   const [statusId, setStatusId] = useState("");
   const [comment, setComment] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState("");
-
-  const imageUrl = getImageUrl(report?.images?.[0]?.filePath);
 
   useEffect(() => {
     if (!report) {
@@ -101,13 +99,14 @@ function AdminReportDetail({ report, statuses, isLoading, onReportUpdated }) {
         <StatusBadge status={report.status?.name} className="admin-report-detail__current-status" />
       </div>
 
-      <div className="admin-report-detail__image">
-        {imageUrl ? (
-          <img src={imageUrl} alt={report.title || `Report ${report.id}`} />
-        ) : (
-          <ImageOff size={32} />
-        )}
-      </div>
+      <ReportThumbnail
+        imagePath={report.images?.[0]?.filePath}
+        alt={report.title || `Report ${report.id}`}
+        className="admin-report-detail__image"
+        placeholderText=""
+        iconSize={32}
+        loading="eager"
+      />
 
       <div className="admin-report-detail__meta">
         <span>
