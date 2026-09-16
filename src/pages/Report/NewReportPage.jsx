@@ -1,63 +1,32 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import {
-  Camera,
-  FileText,
-  ImagePlus,
-  LoaderCircle,
-  LocateFixed,
-  MapPin,
-  X,
-} from "lucide-react";
 
 import { getCategories } from "../../api/categoryApi";
 import { createReport } from "../../api/reportApi";
-
 import { getErrorMessage } from "../../utils/getErrorMessage";
-
-import "./new-report-page.scss";
 import LocationPickerMap from "../../components/maps/LocationPickerMap";
 import PageHeader from "../../components/shared/PageHeader";
+import ReportDetailsSection from "../../components/reports/new-report/ReportDetailsSection";
+import ReportLocationSection from "../../components/reports/new-report/ReportLocationSection";
+import ReportPhotosSection from "../../components/reports/new-report/ReportPhotosSection";
+import ReportSubmitActions from "../../components/reports/new-report/ReportSubmitActions";
+import "./new-report-page.scss";
 
 const MAX_IMAGES = 3;
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
-
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
-
-function getApiError(error) {
-  const responseData = error.response?.data;
-
-  if (responseData?.errors) {
-    const validationMessages = Object.values(responseData.errors).flat();
-
-    if (validationMessages.length > 0) {
-      return validationMessages[0];
-    }
-  }
-
-  return (
-    responseData?.message ||
-    responseData?.title ||
-    (typeof responseData === "string" ? responseData : null) ||
-    "The report could not be submitted."
-  );
-}
 
 function NewReportPage() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
-
   const [categories, setCategories] = useState([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [categoriesError, setCategoriesError] = useState("");
-
   const [images, setImages] = useState([]);
   const [imageError, setImageError] = useState("");
-
   const [locationError, setLocationError] = useState("");
   const [isLocating, setIsLocating] = useState(false);
-
   const [submitError, setSubmitError] = useState("");
 
   const {
@@ -79,32 +48,26 @@ function NewReportPage() {
 
   const latitude = watch("latitude");
   const longitude = watch("longitude");
-
   const selectedLatitude = latitude !== "" ? Number(latitude) : null;
-
   const selectedLongitude = longitude !== "" ? Number(longitude) : null;
 
-  const handleLocationSelect = (selectedLatitude, selectedLongitude) => {
-    setValue("latitude", selectedLatitude.toString(), {
+  const handleLocationSelect = (nextLatitude, nextLongitude) => {
+    setValue("latitude", nextLatitude.toString(), {
       shouldValidate: true,
       shouldDirty: true,
     });
-
-    setValue("longitude", selectedLongitude.toString(), {
+    setValue("longitude", nextLongitude.toString(), {
       shouldValidate: true,
       shouldDirty: true,
     });
-
     setLocationError("");
   };
 
   useEffect(() => {
     async function loadCategories() {
       setCategoriesError("");
-
       try {
-        const data = await getCategories();
-        setCategories(data);
+        setCategories(await getCategories());
       } catch (error) {
         setCategoriesError(
           getErrorMessage(error, {
@@ -116,76 +79,57 @@ function NewReportPage() {
         setIsLoadingCategories(false);
       }
     }
-
     loadCategories();
   }, []);
 
-  useEffect(() => {
-    return () => {
-      images.forEach((image) => {
-        URL.revokeObjectURL(image.previewUrl);
-      });
-    };
-  }, [images]);
+  useEffect(
+    () => () => {
+      images.forEach((image) => URL.revokeObjectURL(image.previewUrl));
+    },
+    [images],
+  );
 
   const handleImagesSelected = (event) => {
     const selectedFiles = Array.from(event.target.files || []);
-
     event.target.value = "";
     setImageError("");
 
-    if (selectedFiles.length === 0) {
-      return;
-    }
-
+    if (!selectedFiles.length) return;
     if (images.length + selectedFiles.length > MAX_IMAGES) {
       setImageError(`You can upload a maximum of ${MAX_IMAGES} images.`);
       return;
     }
-
-    const invalidType = selectedFiles.find(
-      (file) => !ALLOWED_IMAGE_TYPES.includes(file.type),
-    );
-
-    if (invalidType) {
+    if (
+      selectedFiles.some((file) => !ALLOWED_IMAGE_TYPES.includes(file.type))
+    ) {
       setImageError("Only JPG, PNG and WEBP images are supported.");
       return;
     }
-
-    const oversizedFile = selectedFiles.find(
-      (file) => file.size > MAX_IMAGE_SIZE,
-    );
-
-    if (oversizedFile) {
+    if (selectedFiles.some((file) => file.size > MAX_IMAGE_SIZE)) {
       setImageError("Each image must be smaller than 10 MB.");
       return;
     }
 
-    const newImages = selectedFiles.map((file) => ({
-      file,
-      previewUrl: URL.createObjectURL(file),
-    }));
-
-    setImages((currentImages) => [...currentImages, ...newImages]);
+    setImages((currentImages) => [
+      ...currentImages,
+      ...selectedFiles.map((file) => ({
+        file,
+        previewUrl: URL.createObjectURL(file),
+      })),
+    ]);
   };
 
   const removeImage = (indexToRemove) => {
     setImages((currentImages) => {
       const removedImage = currentImages[indexToRemove];
-
-      if (removedImage) {
-        URL.revokeObjectURL(removedImage.previewUrl);
-      }
-
+      if (removedImage) URL.revokeObjectURL(removedImage.previewUrl);
       return currentImages.filter((_, index) => index !== indexToRemove);
     });
-
     setImageError("");
   };
 
   const getCurrentLocation = () => {
     setLocationError("");
-
     if (!navigator.geolocation) {
       setLocationError(
         "Geolocation is not supported by your browser. Enter the address manually.",
@@ -194,7 +138,6 @@ function NewReportPage() {
     }
 
     setIsLocating(true);
-
     navigator.geolocation.getCurrentPosition(
       (position) => {
         handleLocationSelect(
@@ -206,39 +149,24 @@ function NewReportPage() {
       (geolocationError) => {
         let message =
           "Your location could not be determined. Select the location manually on the map.";
-
         if (geolocationError.code === geolocationError.PERMISSION_DENIED) {
           message =
             "Location permission was denied. Select the location manually on the map.";
         }
-
         if (geolocationError.code === geolocationError.TIMEOUT) {
           message =
             "Location request timed out. Select the location manually on the map.";
         }
-
         setLocationError(message);
         setIsLocating(false);
       },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 60000,
-      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
     );
   };
 
   const clearLocation = () => {
-    setValue("latitude", "", {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-
-    setValue("longitude", "", {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-
+    setValue("latitude", "", { shouldValidate: true, shouldDirty: true });
+    setValue("longitude", "", { shouldValidate: true, shouldDirty: true });
     setLocationError("");
   };
 
@@ -247,52 +175,33 @@ function NewReportPage() {
     setImageError("");
     setLocationError("");
 
-    if (images.length === 0) {
+    if (!images.length) {
       setImageError("At least one image is required.");
       return;
     }
-
     const hasCoordinates = data.latitude !== "" && data.longitude !== "";
-
     if (!hasCoordinates) {
       setLocationError(
         "Select the report location on the map or use your current location.",
       );
-
       return;
     }
 
     const formData = new FormData();
-
-    if (data.title.trim()) {
-      formData.append("Title", data.title.trim());
-    }
-
+    if (data.title.trim()) formData.append("Title", data.title.trim());
     formData.append("Description", data.description.trim());
-
     formData.append("CategoryId", data.categoryId);
-
-    if (hasCoordinates) {
-      formData.append("Latitude", data.latitude);
-      formData.append("Longitude", data.longitude);
-    }
-
-    if (data.addressFallback.trim()) {
+    formData.append("Latitude", data.latitude);
+    formData.append("Longitude", data.longitude);
+    if (data.addressFallback.trim())
       formData.append("AddressFallback", data.addressFallback.trim());
-    }
-
-    images.forEach(({ file }) => {
-      formData.append("Images", file);
-    });
+    images.forEach(({ file }) => formData.append("Images", file));
 
     try {
       const createdReport = await createReport(formData);
-
       navigate(`/reports/${createdReport.id}`, {
         replace: true,
-        state: {
-          successMessage: "Your report was submitted successfully.",
-        },
+        state: { successMessage: "Your report was submitted successfully." },
       });
     } catch (error) {
       setSubmitError(
@@ -315,7 +224,6 @@ function NewReportPage() {
         title="Report a problem"
         description="Select the location on the map, add photos and describe the problem."
       />
-
       <div className="new-report-layout">
         <aside className="new-report-layout__map">
           <LocationPickerMap
@@ -324,7 +232,6 @@ function NewReportPage() {
             onLocationSelect={handleLocationSelect}
           />
         </aside>
-
         <div className="new-report-layout__form">
           <form
             className="report-form"
@@ -339,297 +246,40 @@ function NewReportPage() {
                 {submitError}
               </div>
             )}
-
             <div className="report-form__panel">
-              <section className="report-form__section">
-                <div className="report-form__section-heading">
-                  <div className="report-form__section-icon">
-                    <FileText size={22} />
-                  </div>
-
-                  <div>
-                    <h2>Report details</h2>
-                    <p>Describe the problem you want to report.</p>
-                  </div>
-                </div>
-
-                <div className="report-form__field">
-                  <label htmlFor="title">
-                    Title <span>Optional</span>
-                  </label>
-
-                  <input
-                    id="title"
-                    type="text"
-                    maxLength={120}
-                    placeholder="For example: Broken street light"
-                    aria-invalid={Boolean(errors.title)}
-                    {...register("title", {
-                      maxLength: {
-                        value: 120,
-                        message: "Title cannot exceed 120 characters.",
-                      },
-                    })}
-                  />
-
-                  {errors.title && (
-                    <p className="report-form__error" role="alert">
-                      {errors.title.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="report-form__field">
-                  <label htmlFor="categoryId">Category</label>
-
-                  <select
-                    id="categoryId"
-                    disabled={isLoadingCategories}
-                    aria-invalid={Boolean(errors.categoryId)}
-                    {...register("categoryId", {
-                      required: "Category is required.",
-                    })}
-                  >
-                    <option value="">
-                      {isLoadingCategories
-                        ? "Loading categories..."
-                        : "Select a category"}
-                    </option>
-
-                    {categories.map((category) => (
-                      <option key={category.id} value={category.id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
-
-                  {categoriesError && (
-                    <p className="report-form__error" role="alert">
-                      {categoriesError}
-                    </p>
-                  )}
-
-                  {errors.categoryId && (
-                    <p className="report-form__error" role="alert">
-                      {errors.categoryId.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="report-form__field">
-                  <label htmlFor="description">Description</label>
-
-                  <textarea
-                    id="description"
-                    rows={6}
-                    maxLength={2000}
-                    placeholder="Describe what is damaged, where it is and whether it poses a danger."
-                    aria-invalid={Boolean(errors.description)}
-                    {...register("description", {
-                      required: "Description is required.",
-                      minLength: {
-                        value: 10,
-                        message:
-                          "Description must contain at least 10 characters.",
-                      },
-                      maxLength: {
-                        value: 2000,
-                        message: "Description cannot exceed 2000 characters.",
-                      },
-                    })}
-                  />
-
-                  {errors.description && (
-                    <p className="report-form__error" role="alert">
-                      {errors.description.message}
-                    </p>
-                  )}
-                </div>
-              </section>
-
-              <section className="report-form__section">
-                <div className="report-form__section-heading">
-                  <div className="report-form__section-icon">
-                    <MapPin size={22} />
-                  </div>
-
-                  <div>
-                    <h2>Location</h2>
-                    <p>
-                      Select the report location on the map or use your current
-                      location.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="report-form__selected-location">
-                  <span>Selected coordinates</span>
-
-                  {selectedLatitude != null && selectedLongitude != null ? (
-                    <>
-                      <strong>
-                        {selectedLatitude.toFixed(6)},{" "}
-                        {selectedLongitude.toFixed(6)}
-                      </strong>
-
-                      <button type="button" onClick={clearLocation}>
-                        Remove location
-                      </button>
-                    </>
-                  ) : (
-                    <strong>No location selected</strong>
-                  )}
-                </div>
-
-                <button
-                  className="report-form__location-button"
-                  type="button"
-                  onClick={getCurrentLocation}
-                  disabled={isLocating}
-                >
-                  {isLocating ? (
-                    <LoaderCircle className="report-form__spinner" size={20} />
-                  ) : (
-                    <LocateFixed size={20} />
-                  )}
-
-                  {isLocating
-                    ? "Finding your location..."
-                    : "Use my current location"}
-                </button>
-
-                <input type="hidden" {...register("latitude")} />
-                <input type="hidden" {...register("longitude")} />
-
-                {locationError && (
-                  <p className="report-form__error" role="alert">
-                    {locationError}
-                  </p>
-                )}
-
-                <div className="report-form__field report-form__field--address">
-                  <label htmlFor="addressFallback">
-                    Address or location description
-                    <span>Optional</span>
-                  </label>
-
-                  <input
-                    id="addressFallback"
-                    type="text"
-                    maxLength={250}
-                    placeholder="Street, number or nearby landmark"
-                    aria-invalid={Boolean(errors.addressFallback)}
-                    {...register("addressFallback", {
-                      maxLength: {
-                        value: 250,
-                        message: "Address cannot exceed 250 characters.",
-                      },
-                    })}
-                  />
-
-                  <small className="report-form__field-hint">
-                    This helps other users understand the selected map location.
-                  </small>
-
-                  {errors.addressFallback && (
-                    <p className="report-form__error" role="alert">
-                      {errors.addressFallback.message}
-                    </p>
-                  )}
-                </div>
-              </section>
-
-              <section className="report-form__section">
-                <div className="report-form__section-heading">
-                  <div className="report-form__section-icon">
-                    <Camera size={22} />
-                  </div>
-
-                  <div>
-                    <h2>Photos</h2>
-                    <p>Add between 1 and 3 clear images.</p>
-                  </div>
-                </div>
-
-                {images.length < MAX_IMAGES && (
-                  <button
-                    className="report-form__upload"
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <ImagePlus size={24} />
-                    <span>Choose photos</span>
-                    <small>JPG, PNG or WEBP, up to 10 MB each</small>
-                  </button>
-                )}
-
-                <input
-                  ref={fileInputRef}
-                  className="report-form__file-input"
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  multiple
-                  onChange={handleImagesSelected}
-                />
-
-                {images.length > 0 && (
-                  <div className="report-form__previews">
-                    {images.map((image, index) => (
-                      <figure
-                        className="report-form__preview"
-                        key={`${image.file.name}-${image.file.lastModified}`}
-                      >
-                        <img
-                          src={image.previewUrl}
-                          alt={`Selected report photo ${index + 1}`}
-                        />
-
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                          aria-label={`Remove photo ${index + 1}`}
-                        >
-                          <X size={18} />
-                        </button>
-                      </figure>
-                    ))}
-                  </div>
-                )}
-
-                <p className="report-form__counter">
-                  {images.length} / {MAX_IMAGES} photos
-                </p>
-
-                {imageError && (
-                  <p className="report-form__error" role="alert">
-                    {imageError}
-                  </p>
-                )}
-              </section>
-
-              <div className="report-form__actions">
-                <button
-                  className="report-form__submit"
-                  type="submit"
-                  disabled={
-                    isSubmitting ||
-                    isLoadingCategories ||
-                    Boolean(categoriesError)
-                  }
-                >
-                  {isSubmitting ? (
-                    <>
-                      <LoaderCircle
-                        className="report-form__spinner"
-                        size={20}
-                      />
-                      Submitting report...
-                    </>
-                  ) : (
-                    "Submit report"
-                  )}
-                </button>
-              </div>
+              <ReportDetailsSection
+                categories={categories}
+                isLoadingCategories={isLoadingCategories}
+                categoriesError={categoriesError}
+                register={register}
+                errors={errors}
+              />
+              <ReportLocationSection
+                selectedLatitude={selectedLatitude}
+                selectedLongitude={selectedLongitude}
+                isLocating={isLocating}
+                locationError={locationError}
+                onClearLocation={clearLocation}
+                onGetCurrentLocation={getCurrentLocation}
+                register={register}
+                errors={errors}
+              />
+              <ReportPhotosSection
+                images={images}
+                imageError={imageError}
+                maxImages={MAX_IMAGES}
+                fileInputRef={fileInputRef}
+                onImagesSelected={handleImagesSelected}
+                onRemoveImage={removeImage}
+              />
+              <ReportSubmitActions
+                isSubmitting={isSubmitting}
+                disabled={
+                  isSubmitting ||
+                  isLoadingCategories ||
+                  Boolean(categoriesError)
+                }
+              />
             </div>
           </form>
         </div>
