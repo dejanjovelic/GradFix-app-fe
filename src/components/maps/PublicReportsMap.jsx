@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import markerUrl from "leaflet/dist/images/marker-icon.png";
 import markerRetinaUrl from "leaflet/dist/images/marker-icon-2x.png";
 import shadowUrl from "leaflet/dist/images/marker-shadow.png";
+import "leaflet/dist/leaflet.css";
 
 const DEFAULT_CENTER = [45.2671, 19.8335];
 const markerIcon = new Icon({

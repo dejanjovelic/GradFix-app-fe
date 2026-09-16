@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { loginUser, loginWithGoogle } from "../../api/authApi";
 import { useAuth } from "../../hooks/useAuth";
 
-import { GoogleLogin } from "@react-oauth/google";
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { getErrorMessage } from "../../utils/getErrorMessage";
 import AuthCard from "../../components/auth/AuthCard";
 import AuthField from "../../components/auth/AuthField";
@@ -13,6 +13,7 @@ import AuthSubmitButton from "../../components/auth/AuthSubmitButton";
 import FeedbackMessage from "../../components/shared/FeedbackMessage";
 
 function LoginPage() {
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   const [serverError, setServerError] = useState("");
 
   const { login, isAuthenticated, user } = useAuth();
@@ -148,17 +149,25 @@ function LoginPage() {
         <div className="auth-card__divider">
           <span>or</span>
         </div>
-        <div className="auth-card__google">
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={handleGoogleError}
-            useOneTap={false}
-            theme="outline"
-            size="large"
-            text="continue_with"
-            shape="rectangular"
-          />
-        </div>
+        {googleClientId ? (
+          <GoogleOAuthProvider clientId={googleClientId}>
+            <div className="auth-card__google">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                useOneTap={false}
+                theme="outline"
+                size="large"
+                text="continue_with"
+                shape="rectangular"
+              />
+            </div>
+          </GoogleOAuthProvider>
+        ) : (
+          <FeedbackMessage variant="warning" className="auth-form__server-error">
+            Google sign-in is temporarily unavailable.
+          </FeedbackMessage>
+        )}
     </AuthCard>
   );
 }
