@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 
 import { getReports, getReportById } from "../../api/reportApi";
-import { getCategories } from "../../api/categoryApi";
-import { getReportStatuses } from "../../api/reportStatusApi";
 import { getErrorMessage } from "../../utils/getErrorMessage";
 
 import AdminReportListItem from "../../components/reports/AdminReportListItem";
 import AdminReportDetail from "./components/AdminReportDetail";
 import PageHeader from "../../components/shared/PageHeader";
 import Pagination from "../../components/shared/Pagination";
+import FeedbackMessage from "../../components/shared/FeedbackMessage";
+import { useReportLookups } from "../../hooks/useReportLookups";
+import { useDebouncedValue } from "../../hooks/useDebouncedValue";
 
 import "./admin-dashboard-page.scss";
 
@@ -16,8 +17,7 @@ const DEFAULT_PAGE_SIZE = 6;
 
 function AdminDashboardPage() {
   const [reports, setReports] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [statuses, setStatuses] = useState([]);
+  const lookups = useReportLookups();
 
   const [selectedReport, setSelectedReport] = useState(null);
 
@@ -36,29 +36,7 @@ function AdminDashboardPage() {
 
   const [isLoadingSelectedReport, setIsLoadingSelectedReport] = useState(false);
 
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
-
-  useEffect(() => {
-    async function loadLookups() {
-      try {
-        const [categoryData, statusData] = await Promise.all([
-          getCategories(),
-          getReportStatuses(),
-        ]);
-
-        setCategories(categoryData);
-        setStatuses(statusData);
-      } catch (error) {
-        setError(
-          getErrorMessage(error, {
-            fallbackMessage: "Report filters could not be loaded.",
-          }),
-        );
-      }
-    }
-
-    loadLookups();
-  }, []);
+  const debouncedSearchQuery = useDebouncedValue(searchQuery.trim(), 400);
 
   const loadReports = async () => {
     try {
@@ -90,18 +68,6 @@ function AdminDashboardPage() {
   useEffect(() => {
     loadReports();
   }, [page, categoryId, statusId, debouncedSearchQuery]);
-
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery.trim());
-
-      setPage(1);
-    }, 400);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [searchQuery]);
 
   const handleSelectReport = async (reportId) => {
     try {
@@ -142,6 +108,7 @@ function AdminDashboardPage() {
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
+    setPage(1);
     setSelectedReport(null);
   };
 
@@ -177,11 +144,12 @@ function AdminDashboardPage() {
                 <select
                   id="admin-category"
                   value={categoryId}
+                  disabled={lookups.loading}
                   onChange={handleCategoryChange}
                 >
                   <option value="">All categories</option>
 
-                  {categories.map((category) => (
+                  {lookups.categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
                     </option>
@@ -195,11 +163,12 @@ function AdminDashboardPage() {
                 <select
                   id="admin-status"
                   value={statusId}
+                  disabled={lookups.loading}
                   onChange={handleStatusChange}
                 >
                   <option value="">All statuses</option>
 
-                  {statuses.map((status) => (
+                  {lookups.statuses.map((status) => (
                     <option key={status.id} value={status.id}>
                       {status.name}
                     </option>
@@ -208,6 +177,16 @@ function AdminDashboardPage() {
               </div>
             </div>
           </div>
+
+          {lookups.error && (
+            <FeedbackMessage
+              variant="warning"
+              className="admin-reports-panel__lookup-warning"
+              action={<button type="button" onClick={lookups.retry}>Retry filters</button>}
+            >
+              {lookups.error}
+            </FeedbackMessage>
+          )}
 
           <div className="admin-reports-panel__list">
             {isLoading ? (
@@ -244,7 +223,7 @@ function AdminDashboardPage() {
 
         <AdminReportDetail
           report={selectedReport}
-          statuses={statuses}
+          statuses={lookups.statuses}
           isLoading={isLoadingSelectedReport}
           onReportUpdated={handleReportUpdated}
         />

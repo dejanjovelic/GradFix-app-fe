@@ -2,13 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { getMyReports } from "../../api/reportApi";
-import { getCategories } from "../../api/categoryApi";
-import { getReportStatuses } from "../../api/reportStatusApi";
 import { getErrorMessage } from "../../utils/getErrorMessage";
 import FeedbackMessage from "../../components/shared/FeedbackMessage";
 import PageHeader from "../../components/shared/PageHeader";
 import Pagination from "../../components/shared/Pagination";
 import MyReportListItem from "../../components/reports/MyReportListItem";
+import { useReportLookups } from "../../hooks/useReportLookups";
 
 import "./my-reports-page.scss";
 
@@ -19,8 +18,7 @@ function MyReportsPage() {
 
   const [reports, setReports] = useState([]);
 
-  const [categories, setCategories] = useState([]);
-  const [statuses, setStatuses] = useState([]);
+  const lookups = useReportLookups();
 
   const [categoryId, setCategoryId] = useState("");
   const [statusId, setStatusId] = useState("");
@@ -33,38 +31,6 @@ function MyReportsPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  const [filtersError, setFiltersError] = useState("");
-
-  useEffect(() => {
-    async function loadFilters() {
-      setFiltersError("");
-
-      const [categoriesResult, statusesResult] =
-        await Promise.allSettled([
-          getCategories(),
-          getReportStatuses(),
-        ]);
-
-      if (categoriesResult.status === "fulfilled") {
-        setCategories(categoriesResult.value ?? []);
-      }
-
-      if (statusesResult.status === "fulfilled") {
-        setStatuses(statusesResult.value ?? []);
-      }
-
-      if (
-        categoriesResult.status === "rejected" ||
-        statusesResult.status === "rejected"
-      ) {
-        setFiltersError(
-          "Some filter options could not be loaded.",
-        );
-      }
-    }
-
-    loadFilters();
-  }, []);
 
   useEffect(() => {
     let isCancelled = false;
@@ -157,9 +123,9 @@ function MyReportsPage() {
         description="Track the problems you have reported and follow their current status."
       />
 
-      {filtersError && (
+      {lookups.error && (
         <FeedbackMessage variant="warning" className="my-reports-page__message my-reports-page__message--warning">
-          {filtersError}
+          {lookups.error}
         </FeedbackMessage>
       )}
 
@@ -172,11 +138,12 @@ function MyReportsPage() {
           <select
             id="my-reports-category"
             value={categoryId}
+            disabled={lookups.loading}
             onChange={handleCategoryChange}
           >
             <option value="">All categories</option>
 
-            {categories.map((category) => (
+            {lookups.categories.map((category) => (
               <option
                 key={category.id}
                 value={category.id}
@@ -195,11 +162,12 @@ function MyReportsPage() {
           <select
             id="my-reports-status"
             value={statusId}
+            disabled={lookups.loading}
             onChange={handleStatusChange}
           >
             <option value="">All statuses</option>
 
-            {statuses.map((status) => (
+            {lookups.statuses.map((status) => (
               <option
                 key={status.id}
                 value={status.id}

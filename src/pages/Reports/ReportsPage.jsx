@@ -13,6 +13,7 @@ import ReportCard from "../../components/reports/ReportCard";
 import ReportsUnavailable from "../../components/reports/ReportsUnavailable";
 import Pagination from "../../components/shared/Pagination";
 import FeedbackMessage from "../../components/shared/FeedbackMessage";
+import { useDebouncedValue } from "../../hooks/useDebouncedValue";
 import "./reports-page.scss";
 
 export default function ReportsPage() {
@@ -28,6 +29,7 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
+  const debouncedSearchQuery = useDebouncedValue(searchQuery.trim(), 300);
   const isPageUnavailable = Boolean(error && lookups.error);
   const changeFilter = (key, value) =>
     setParams((current) => updateReportFilter(current, key, value), {
@@ -45,14 +47,14 @@ export default function ReportsPage() {
     let active = true;
     setLoading(true);
     setError("");
-    const timer = window.setTimeout(async () => {
+    async function loadReports() {
       try {
         const data = await getReports({
           page,
           pageSize: 6,
           categoryId,
           statusId,
-          searchQuery: searchQuery.trim(),
+          searchQuery: debouncedSearchQuery,
         });
         if (!active) return;
         setResult({
@@ -81,12 +83,12 @@ export default function ReportsPage() {
       } finally {
         if (active) setLoading(false);
       }
-    }, 300);
+    }
+    loadReports();
     return () => {
       active = false;
-      window.clearTimeout(timer);
     };
-  }, [page, categoryId, statusId, searchQuery, attempt, setParams]);
+  }, [page, categoryId, statusId, debouncedSearchQuery, attempt, setParams]);
 
   return (
     <>
