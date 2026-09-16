@@ -5,6 +5,8 @@ import { updateReportStatus } from "../../../api/reportApi.js";
 import { getErrorMessage } from "../../../utils/getErrorMessage";
 
 import { getImageUrl } from "../../../utils/getImageUrl";
+import LoadingState from "../../../components/shared/LoadingState";
+import StatusBadge from "../../../components/shared/StatusBadge";
 
 function AdminReportDetail({ report, statuses, isLoading, onReportUpdated }) {
   const [statusId, setStatusId] = useState("");
@@ -27,13 +29,7 @@ function AdminReportDetail({ report, statuses, isLoading, onReportUpdated }) {
   }, [report]);
 
   if (isLoading) {
-    return (
-      <section className="admin-report-detail admin-report-detail--empty">
-        <LoaderCircle className="admin-status-form__spinner" size={24} />
-
-        <p>Loading report details...</p>
-      </section>
-    );
+    return <LoadingState className="admin-report-detail admin-report-detail--empty" spinnerClassName="admin-status-form__spinner" message="Loading report details..." />;
   }
 
   if (!report) {
@@ -102,9 +98,7 @@ function AdminReportDetail({ report, statuses, isLoading, onReportUpdated }) {
           <h2>{report.title || "Untitled report"}</h2>
         </div>
 
-        <span className="admin-report-detail__current-status">
-          {report.status?.name}
-        </span>
+        <StatusBadge status={report.status?.name} className="admin-report-detail__current-status" />
       </div>
 
       <div className="admin-report-detail__image">

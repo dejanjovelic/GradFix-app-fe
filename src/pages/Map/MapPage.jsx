@@ -12,6 +12,7 @@ import {
 import ReportFilters from "../../components/reports/ReportFilters";
 import ReportsUnavailable from "../../components/reports/ReportsUnavailable";
 import ReportsMap from "./ReportsMap";
+import FeedbackMessage from "../../components/shared/FeedbackMessage";
 import "./map-page.scss";
 
 export default function MapPage() {
@@ -87,21 +88,26 @@ export default function MapPage() {
             </p>
           )}
           {error ? (
-            <div className="civic-feedback civic-feedback--error" role="alert">
+            <FeedbackMessage
+              variant="error"
+              className="civic-feedback civic-feedback--error"
+              action={
+                <button
+                  type="button"
+                  onClick={() => setAttempt((value) => value + 1)}
+                >
+                  Try again
+                </button>
+              }
+            >
               Map reports are temporarily unavailable.
-              <button
-                type="button"
-                onClick={() => setAttempt((value) => value + 1)}
-              >
-                Try again
-              </button>
-            </div>
+            </FeedbackMessage>
           ) : (
             <>
               {!loading && !reports.length && (
-                <p className="civic-feedback">
+                <FeedbackMessage className="civic-feedback">
                   No reported locations match these filters.
-                </p>
+                </FeedbackMessage>
               )}
               <ReportsMap reports={loading ? [] : reports} />
             </>

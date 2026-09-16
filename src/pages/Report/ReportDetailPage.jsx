@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
-import { ArrowLeft, CalendarDays, LoaderCircle, MapPin } from "lucide-react";
+import { ArrowLeft, CalendarDays, MapPin } from "lucide-react";
 
 import { getReportById } from "../../api/reportApi";
 import { getErrorMessage } from "../../utils/getErrorMessage";
 import { formatDateTime } from "../../utils/formatDateTime";
 import { getImageUrl } from "../../utils/getImageUrl";
+import LoadingState from "../../components/shared/LoadingState";
+import StatusBadge from "../../components/shared/StatusBadge";
 
 import "./report-detail-page.scss";
 
@@ -49,13 +51,7 @@ function ReportDetailPage() {
   }, [id]);
 
   if (isLoading) {
-    return (
-      <div className="report-detail-state">
-        <LoaderCircle className="report-detail-state__spinner" size={32} />
-
-        <p>Loading report...</p>
-      </div>
-    );
+    return <LoadingState className="report-detail-state" spinnerClassName="report-detail-state__spinner" size={32} message="Loading report..." />;
   }
 
   if (error) {
@@ -91,9 +87,7 @@ function ReportDetailPage() {
           <h1>{report.title || `Report #${report.id}`}</h1>
         </div>
 
-        <span className="report-detail__status">
-          {report.status?.name ?? "New"}
-        </span>
+        <StatusBadge status={report.status?.name} fallback="New" className="report-detail__status" />
       </header>
 
       {report.images?.length > 0 && (

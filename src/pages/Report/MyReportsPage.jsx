@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { getMyReports } from "../../api/reportApi";
@@ -8,6 +7,10 @@ import { getReportStatuses } from "../../api/reportStatusApi";
 import { getErrorMessage } from "../../utils/getErrorMessage";
 import { getImageUrl } from "../../utils/getImageUrl";
 import { formatDate } from "../../utils/formatDate";
+import FeedbackMessage from "../../components/shared/FeedbackMessage";
+import PageHeader from "../../components/shared/PageHeader";
+import Pagination from "../../components/shared/Pagination";
+import StatusBadge from "../../components/shared/StatusBadge";
 
 import "./my-reports-page.scss";
 
@@ -146,32 +149,20 @@ function MyReportsPage() {
     navigate(`/reports/${reportId}`);
   }
 
-  const safeTotalPages = Math.max(totalPages, 1);
-
   return (
     <section className="my-reports-page">
-      <header className="my-reports-page__header">
-        <div>
-          <span className="my-reports-page__eyebrow">
-            Citizen area
-          </span>
-
-          <h1>My reports</h1>
-
-          <p>
-            Track the problems you have reported and
-            follow their current status.
-          </p>
-        </div>
-      </header>
+      <PageHeader
+        className="my-reports-page__header"
+        eyebrowClassName="my-reports-page__eyebrow"
+        eyebrow="Citizen area"
+        title="My reports"
+        description="Track the problems you have reported and follow their current status."
+      />
 
       {filtersError && (
-        <div
-          className="my-reports-page__message my-reports-page__message--warning"
-          role="alert"
-        >
+        <FeedbackMessage variant="warning" className="my-reports-page__message my-reports-page__message--warning">
           {filtersError}
-        </div>
+        </FeedbackMessage>
       )}
 
       <div className="my-reports-page__toolbar">
@@ -295,10 +286,7 @@ function MyReportsPage() {
                             `Report #${report.id}`}
                         </strong>
 
-                        <span className="my-report-item__status">
-                          {report.statusName ||
-                            "Unknown status"}
-                        </span>
+                        <StatusBadge status={report.statusName} className="my-report-item__status" />
                       </div>
 
                       <span className="my-report-item__category">
@@ -325,43 +313,15 @@ function MyReportsPage() {
       </div>
 
       {!isLoading && !error && (
-        <nav
+        <Pagination
           className="my-reports-page__pagination"
-          aria-label="My reports pagination"
-        >
-          <button
-            type="button"
-            disabled={page <= 1}
-            onClick={() =>
-              setPage((currentPage) =>
-                currentPage - 1
-              )
-            }
-          >
-            <ChevronLeft size={17} />
-            Previous
-          </button>
-
-          <span>
-            Page {page} of {safeTotalPages}
-          </span>
-
-          <button
-            type="button"
-            disabled={
-              page >= safeTotalPages ||
-              totalPages === 0
-            }
-            onClick={() =>
-              setPage((currentPage) =>
-                currentPage + 1
-              )
-            }
-          >
-            Next
-            <ChevronRight size={17} />
-          </button>
-        </nav>
+          ariaLabel="My reports pagination"
+          currentPage={page}
+          totalPages={totalPages}
+          onPrevious={() => setPage((currentPage) => currentPage - 1)}
+          onNext={() => setPage((currentPage) => currentPage + 1)}
+          showIcons
+        />
       )}
     </section>
   );

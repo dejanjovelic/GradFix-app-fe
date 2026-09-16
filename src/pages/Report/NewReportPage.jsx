@@ -18,6 +18,7 @@ import { getErrorMessage } from "../../utils/getErrorMessage";
 
 import "./new-report-page.scss";
 import LocationPickerMap from "../../components/maps/LocationPickerMap";
+import PageHeader from "../../components/shared/PageHeader";
 
 const MAX_IMAGES = 3;
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
@@ -307,15 +308,13 @@ function NewReportPage() {
 
   return (
     <section className="new-report-page">
-      <header className="new-report-page__header">
-        <span className="new-report-page__eyebrow">New report</span>
-
-        <h1>Report a problem</h1>
-
-        <p>
-          Select the location on the map, add photos and describe the problem.
-        </p>
-      </header>
+      <PageHeader
+        className="new-report-page__header"
+        eyebrowClassName="new-report-page__eyebrow"
+        eyebrow="New report"
+        title="Report a problem"
+        description="Select the location on the map, add photos and describe the problem."
+      />
 
       <div className="new-report-layout">
         <aside className="new-report-layout__map">

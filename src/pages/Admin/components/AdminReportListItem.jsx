@@ -1,6 +1,7 @@
 import React from "react";
 import { getImageUrl } from "../../../utils/getImageUrl";
 import { ImageOff } from "lucide-react";
+import StatusBadge from "../../../components/shared/StatusBadge";
 
 function AdminReportListItem({ report, isSelected, onSelect }) {
   const imageUrl = getImageUrl(report.primaryImagePath);
@@ -21,9 +22,7 @@ function AdminReportListItem({ report, isSelected, onSelect }) {
           {report.categoryName || "Uncategorized"}
         </span>
 
-        <span className="admin-report-item__status">
-          {report.statusName || "Unknown status"}
-        </span>
+        <StatusBadge status={report.statusName} className="admin-report-item__status" />
 
         <div className="admin-report-item__image">
           {imageUrl ? <img src={imageUrl} alt="" /> : <ImageOff size={22} />}

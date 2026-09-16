@@ -11,6 +11,8 @@ import { useReportLookups } from "../../hooks/useReportLookups";
 import ReportFilters from "../../components/reports/ReportFilters";
 import ReportCard from "../../components/reports/ReportCard";
 import ReportsUnavailable from "../../components/reports/ReportsUnavailable";
+import Pagination from "../../components/shared/Pagination";
+import FeedbackMessage from "../../components/shared/FeedbackMessage";
 import "./reports-page.scss";
 
 export default function ReportsPage() {
@@ -144,18 +146,20 @@ export default function ReportsPage() {
                   : `${result.totalCount} ${result.totalCount === 1 ? "report" : "reports"} found`}
             </div>
             {error ? (
-              <div
-                role="alert"
+              <FeedbackMessage
+                variant="error"
                 className="civic-feedback civic-feedback--error"
+                action={
+                  <button
+                    type="button"
+                    onClick={() => setAttempt((value) => value + 1)}
+                  >
+                    Try again
+                  </button>
+                }
               >
-                {error}
-                <button
-                  type="button"
-                  onClick={() => setAttempt((value) => value + 1)}
-                >
-                  Try again
-                </button>
-              </div>
+                <span>{error}</span>
+              </FeedbackMessage>
             ) : loading ? (
               <div className="reports-grid" aria-hidden="true">
                 {[1, 2, 3].map((id) => (
@@ -169,32 +173,22 @@ export default function ReportsPage() {
                 ))}
               </div>
             ) : (
-              <div className="civic-feedback">
+              <FeedbackMessage className="civic-feedback">
                 No reports match your filters. Try another search or category.
-              </div>
+              </FeedbackMessage>
             )}
           </>
         )}
         {!isPageUnavailable && !error && result.totalPages > 1 && (
-          <nav className="reports-pagination" aria-label="Reports pagination">
-            <button
-              type="button"
-              disabled={loading || page <= 1}
-              onClick={() => changeFilter("page", page - 1)}
-            >
-              Previous
-            </button>
-            <span>
-              Page {page} of {result.totalPages}
-            </span>
-            <button
-              type="button"
-              disabled={loading || page >= result.totalPages}
-              onClick={() => changeFilter("page", page + 1)}
-            >
-              Next
-            </button>
-          </nav>
+          <Pagination
+            className="reports-pagination"
+            ariaLabel="Reports pagination"
+            currentPage={page}
+            totalPages={result.totalPages}
+            disabled={loading}
+            onPrevious={() => changeFilter("page", page - 1)}
+            onNext={() => changeFilter("page", page + 1)}
+          />
         )}
       </section>
     </>

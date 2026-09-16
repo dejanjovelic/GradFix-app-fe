@@ -7,6 +7,8 @@ import { getErrorMessage } from "../../utils/getErrorMessage";
 
 import AdminReportListItem from "./components/AdminReportListItem";
 import AdminReportDetail from "./components/AdminReportDetail";
+import PageHeader from "../../components/shared/PageHeader";
+import Pagination from "../../components/shared/Pagination";
 
 import "./admin-dashboard-page.scss";
 
@@ -145,13 +147,13 @@ function AdminDashboardPage() {
 
   return (
     <section className="admin-dashboard">
-      <header className="admin-dashboard__header">
-        <span className="admin-dashboard__eyebrow">Administration</span>
-
-        <h1>Reports management</h1>
-
-        <p>Review citizen reports and update their status.</p>
-      </header>
+      <PageHeader
+        className="admin-dashboard__header"
+        eyebrowClassName="admin-dashboard__eyebrow"
+        eyebrow="Administration"
+        title="Reports management"
+        description="Review citizen reports and update their status."
+      />
 
       <div className="admin-dashboard__layout">
         <aside className="admin-reports-panel">
@@ -229,27 +231,14 @@ function AdminDashboardPage() {
           </div>
 
           {totalPages > 1 && (
-            <div className="admin-reports-panel__pagination">
-              <button
-                type="button"
-                disabled={page <= 1}
-                onClick={() => setPage((current) => current - 1)}
-              >
-                Previous
-              </button>
-
-              <span>
-                Page {page} of {totalPages}
-              </span>
-
-              <button
-                type="button"
-                disabled={page >= totalPages}
-                onClick={() => setPage((current) => current + 1)}
-              >
-                Next
-              </button>
-            </div>
+            <Pagination
+              className="admin-reports-panel__pagination"
+              ariaLabel="Admin reports pagination"
+              currentPage={page}
+              totalPages={totalPages}
+              onPrevious={() => setPage((current) => current - 1)}
+              onNext={() => setPage((current) => current + 1)}
+            />
           )}
         </aside>
 

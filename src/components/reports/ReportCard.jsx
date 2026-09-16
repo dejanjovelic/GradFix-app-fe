@@ -4,6 +4,7 @@ import { ImageOff } from "lucide-react";
 import { getImageUrl } from "../../utils/getImageUrl";
 import { formatDateTime } from "../../utils/formatDateTime";
 import { hasReportCoordinates } from "../../utils/reportFilters";
+import StatusBadge from "../shared/StatusBadge";
 
 export default function ReportCard({ report }) {
   const imageUrl = getImageUrl(report.primaryImagePath);
@@ -15,15 +16,6 @@ export default function ReportCard({ report }) {
     (hasReportCoordinates(report)
       ? `${report.latitude.toFixed(4)}, ${report.longitude.toFixed(4)}`
       : "Location not provided");
-  const statusClass = [
-    "new",
-    "accepted",
-    "in-progress",
-    "resolved",
-    "closed",
-  ].includes(report.statusName?.toLowerCase().replaceAll(" ", "-"))
-    ? report.statusName.toLowerCase().replaceAll(" ", "-")
-    : "unknown";
   return (
     <article className="report-card">
       <Link to={`/reports/${report.id}`} className="report-card__link">
@@ -45,11 +37,7 @@ export default function ReportCard({ report }) {
         <div className="report-card__body">
           <div className="report-card__labels">
             <span>{report.categoryName}</span>
-            <span
-              className={`report-card__status report-card__status--${statusClass}`}
-            >
-              {report.statusName}
-            </span>
+            <StatusBadge status={report.statusName} className="report-card__status" />
           </div>
           <h3>{title}</h3>
           <p>{location}</p>

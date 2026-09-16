@@ -1,20 +1,19 @@
 import React from "react";
+import FeedbackMessage from "../shared/FeedbackMessage";
 
 export default function ReportsUnavailable({ onRetry }) {
   return (
-    <div
-      role="alert"
+    <FeedbackMessage
+      variant="error"
       className="civic-feedback civic-feedback--error reports-unavailable"
+      title="Reports are temporarily unavailable"
+      action={
+        <button type="button" onClick={onRetry}>
+          Try again
+        </button>
+      }
     >
-      <div>
-        <strong>Reports are temporarily unavailable</strong>
-        <p>
-          Unable to connect. Please check your connection or try again later.
-        </p>
-      </div>
-      <button type="button" onClick={onRetry}>
-        Try again
-      </button>
-    </div>
+      <p>Unable to connect. Please check your connection or try again later.</p>
+    </FeedbackMessage>
   );
 }
