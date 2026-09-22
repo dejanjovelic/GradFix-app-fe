@@ -8,8 +8,6 @@ import { useAuth } from "../../hooks/useAuth";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { getErrorMessage } from "../../utils/getErrorMessage";
 import AuthCard from "../../components/auth/AuthCard";
-import AuthField from "../../components/auth/AuthField";
-import AuthSubmitButton from "../../components/auth/AuthSubmitButton";
 import FeedbackMessage from "../../components/shared/FeedbackMessage";
 
 function LoginPage() {
@@ -124,26 +122,38 @@ function LoginPage() {
               {serverError}
             </FeedbackMessage>
           )}
-          <AuthField
-            id="email"
-            label="Email address"
-            type="email"
-            autoComplete="email"
-            error={errors.email?.message}
-            registration={register("email", {
-              required: "Email address is required.",
-              pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Enter a valid email address." },
-            })}
-          />
-          <AuthField
-            id="password"
-            label="Password"
-            type="password"
-            autoComplete="current-password"
-            error={errors.password?.message}
-            registration={register("password", { required: "Password is required." })}
-          />
-          <AuthSubmitButton isSubmitting={isSubmitting} idleText="Log in" submittingText="Logging in..." />
+          <div className="auth-form__field">
+            <label className="auth-form__label" htmlFor="email">Email address</label>
+            <input
+              id="email"
+              type="email"
+              autoComplete="email"
+              className={`auth-form__input${errors.email ? " auth-form__input--error" : ""}`}
+              aria-invalid={Boolean(errors.email)}
+              aria-describedby={errors.email ? "email-error" : undefined}
+              {...register("email", {
+                required: "Email address is required.",
+                pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Enter a valid email address." },
+              })}
+            />
+            {errors.email && <p id="email-error" className="auth-form__error" role="alert">{errors.email.message}</p>}
+          </div>
+          <div className="auth-form__field">
+            <label className="auth-form__label" htmlFor="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              autoComplete="current-password"
+              className={`auth-form__input${errors.password ? " auth-form__input--error" : ""}`}
+              aria-invalid={Boolean(errors.password)}
+              aria-describedby={errors.password ? "password-error" : undefined}
+              {...register("password", { required: "Password is required." })}
+            />
+            {errors.password && <p id="password-error" className="auth-form__error" role="alert">{errors.password.message}</p>}
+          </div>
+          <button className="auth-form__submit" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Logging in..." : "Log in"}
+          </button>
         </form>
 
         <div className="auth-card__divider">

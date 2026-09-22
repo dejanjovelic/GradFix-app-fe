@@ -6,8 +6,6 @@ import { registerUser } from "../../api/authApi";
 import { useAuth } from "../../hooks/useAuth";
 import { getErrorMessage } from "../../utils/getErrorMessage";
 import AuthCard from "../../components/auth/AuthCard";
-import AuthField from "../../components/auth/AuthField";
-import AuthSubmitButton from "../../components/auth/AuthSubmitButton";
 import FeedbackMessage from "../../components/shared/FeedbackMessage";
 
 function RegisterPage() {
@@ -68,75 +66,101 @@ function RegisterPage() {
         )}
 
         <div className="auth-form__row">
-          <AuthField
-            id="name"
-            label="First name"
-            autoComplete="given-name"
-            error={errors.name?.message}
-            registration={register("name", {
-              required: "First name is required.",
-              minLength: { value: 2, message: "First name must contain at least 2 characters." },
-              maxLength: { value: 50, message: "First name cannot exceed 50 characters." },
-            })}
-          />
-          <AuthField
-            id="surname"
-            label="Last name"
-            autoComplete="family-name"
-            error={errors.surname?.message}
-            registration={register("surname", {
-              required: "Last name is required.",
-              minLength: { value: 2, message: "Last name must contain at least 2 characters." },
-              maxLength: { value: 50, message: "Last name cannot exceed 50 characters." },
-            })}
-          />
+          <div className="auth-form__field">
+            <label className="auth-form__label" htmlFor="name">First name</label>
+            <input
+              id="name"
+              autoComplete="given-name"
+              className={`auth-form__input${errors.name ? " auth-form__input--error" : ""}`}
+              aria-invalid={Boolean(errors.name)}
+              aria-describedby={errors.name ? "name-error" : undefined}
+              {...register("name", {
+                required: "First name is required.",
+                minLength: { value: 2, message: "First name must contain at least 2 characters." },
+                maxLength: { value: 50, message: "First name cannot exceed 50 characters." },
+              })}
+            />
+            {errors.name && <p id="name-error" className="auth-form__error" role="alert">{errors.name.message}</p>}
+          </div>
+          <div className="auth-form__field">
+            <label className="auth-form__label" htmlFor="surname">Last name</label>
+            <input
+              id="surname"
+              autoComplete="family-name"
+              className={`auth-form__input${errors.surname ? " auth-form__input--error" : ""}`}
+              aria-invalid={Boolean(errors.surname)}
+              aria-describedby={errors.surname ? "surname-error" : undefined}
+              {...register("surname", {
+                required: "Last name is required.",
+                minLength: { value: 2, message: "Last name must contain at least 2 characters." },
+                maxLength: { value: 50, message: "Last name cannot exceed 50 characters." },
+              })}
+            />
+            {errors.surname && <p id="surname-error" className="auth-form__error" role="alert">{errors.surname.message}</p>}
+          </div>
         </div>
 
-        <AuthField
-          id="email"
-          label="Email address"
-          type="email"
-          autoComplete="email"
-          error={errors.email?.message}
-          registration={register("email", {
-            required: "Email address is required.",
-            pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Enter a valid email address." },
-          })}
-        />
-        <AuthField
-          id="password"
-          label="Password"
-          type="password"
-          autoComplete="new-password"
-          error={errors.password?.message}
-          hint="Use at least 8 characters, including uppercase, lowercase, a number and a special character."
-          registration={register("password", {
-            required: "Password is required.",
-            minLength: { value: 8, message: "Password must contain at least 8 characters." },
-            validate: {
-              hasLowercase: (value) => /[a-z]/.test(value) || "Password must contain at least one lowercase letter.",
-              hasUppercase: (value) => /[A-Z]/.test(value) || "Password must contain at least one uppercase letter.",
-              hasDigit: (value) => /\d/.test(value) || "Password must contain at least one number.",
-              hasSpecialCharacter: (value) => /[^a-zA-Z0-9]/.test(value) || "Password must contain at least one special character.",
-            },
-          })}
-        />
-        <AuthField
-          id="confirmPassword"
-          label="Confirm password"
-          type="password"
-          autoComplete="new-password"
-          error={errors.confirmPassword?.message}
-          registration={register("confirmPassword", {
-            required: "Please confirm your password.",
-            validate: (value) => value === password || "Passwords do not match.",
-          })}
-        />
-        <AuthSubmitButton
-          isSubmitting={isSubmitting}
-          idleText="Create account"
-          submittingText="Creating account..."
-        />
+        <div className="auth-form__field">
+          <label className="auth-form__label" htmlFor="email">Email address</label>
+          <input
+            id="email"
+            type="email"
+            autoComplete="email"
+            className={`auth-form__input${errors.email ? " auth-form__input--error" : ""}`}
+            aria-invalid={Boolean(errors.email)}
+            aria-describedby={errors.email ? "email-error" : undefined}
+            {...register("email", {
+              required: "Email address is required.",
+              pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Enter a valid email address." },
+            })}
+          />
+          {errors.email && <p id="email-error" className="auth-form__error" role="alert">{errors.email.message}</p>}
+        </div>
+        <div className="auth-form__field">
+          <label className="auth-form__label" htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            autoComplete="new-password"
+            className={`auth-form__input${errors.password ? " auth-form__input--error" : ""}`}
+            aria-invalid={Boolean(errors.password)}
+            aria-describedby={errors.password ? "password-error" : "password-hint"}
+            {...register("password", {
+              required: "Password is required.",
+              minLength: { value: 8, message: "Password must contain at least 8 characters." },
+              validate: {
+                hasLowercase: (value) => /[a-z]/.test(value) || "Password must contain at least one lowercase letter.",
+                hasUppercase: (value) => /[A-Z]/.test(value) || "Password must contain at least one uppercase letter.",
+                hasDigit: (value) => /\d/.test(value) || "Password must contain at least one number.",
+                hasSpecialCharacter: (value) => /[^a-zA-Z0-9]/.test(value) || "Password must contain at least one special character.",
+              },
+            })}
+          />
+          {errors.password ? (
+            <p id="password-error" className="auth-form__error" role="alert">{errors.password.message}</p>
+          ) : (
+            <p id="password-hint" className="auth-form__hint">Use at least 8 characters, including uppercase, lowercase, a number and a special character.</p>
+          )}
+        </div>
+        <div className="auth-form__field">
+          <label className="auth-form__label" htmlFor="confirmPassword">Confirm password</label>
+          <input
+            id="confirmPassword"
+            type="password"
+            autoComplete="new-password"
+            className={`auth-form__input${errors.confirmPassword ? " auth-form__input--error" : ""}`}
+            aria-invalid={Boolean(errors.confirmPassword)}
+            aria-describedby={errors.confirmPassword ? "confirmPassword-error" : undefined}
+            {...register("confirmPassword", {
+              required: "Please confirm your password.",
+              validate: (value) => value === password || "Passwords do not match.",
+            })}
+          />
+          {errors.confirmPassword && <p id="confirmPassword-error" className="auth-form__error" role="alert">{errors.confirmPassword.message}</p>}
+        </div>
+        <button className="auth-form__submit" type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Creating account..." : "Create account"}
+        </button>
       </form>
     </AuthCard>
   );
