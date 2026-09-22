@@ -1,20 +1,20 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
 import CitizenLayout from "../layouts/CitizenLayout";
 import AdminLayout from "../layouts/AdminLayout";
-import ReportsPage from "../pages/Reports/ReportsPage";
-import MapPage from "../pages/Map/MapPage";
-import LoginPage from "../pages/Login/LoginPage";
-import RegisterPage from "../pages/Register/RegisterPage";
-import NewReportPage from "../pages/Report/NewReportPage";
-import AdminDashboardPage from "../pages/Admin/AdminDashboardPage";
-import ReportDetailPage from "../pages/Report/ReportDetailPage";
-import MyReportsPage from "../pages/Report/MyReportsPage";
+import LoadingState from "../components/shared/LoadingState";
 
 import "../assets/styles/global.scss";
 
-
+const ReportsPage = lazy(() => import("../pages/Reports/ReportsPage"));
+const MapPage = lazy(() => import("../pages/Map/MapPage"));
+const LoginPage = lazy(() => import("../pages/Login/LoginPage"));
+const RegisterPage = lazy(() => import("../pages/Register/RegisterPage"));
+const NewReportPage = lazy(() => import("../pages/Report/NewReportPage"));
+const AdminDashboardPage = lazy(() => import("../pages/Admin/AdminDashboardPage"));
+const ReportDetailPage = lazy(() => import("../pages/Report/ReportDetailPage"));
+const MyReportsPage = lazy(() => import("../pages/Report/MyReportsPage"));
 
 function ReportsRedirect() {
   const { search, hash } = useLocation();
@@ -23,47 +23,48 @@ function ReportsRedirect() {
 
 function AppRoutes() {
   return (
-    <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+    <Suspense fallback={<LoadingState message="Loading page…" />}>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
-      <Route element={<CitizenLayout />}>
-        <Route path="/" element={<ReportsPage />} />
-        <Route path="/reports" element={<ReportsRedirect />} />
-        <Route path="/reports/:id" element={<ReportDetailPage />} />
+        <Route element={<CitizenLayout />}>
+          <Route path="/" element={<ReportsPage />} />
+          <Route path="/reports" element={<ReportsRedirect />} />
+          <Route path="/reports/:id" element={<ReportDetailPage />} />
+
+          <Route
+            path="/report/new"
+            element={
+              <ProtectedRoute>
+                <NewReportPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route path="/map" element={<MapPage />} />
+
+          <Route
+            path="/my-reports"
+            element={
+              <ProtectedRoute>
+                <MyReportsPage />
+              </ProtectedRoute>
+            }
+          />
+        </Route>
 
         <Route
-          path="/report/new"
           element={
-            <ProtectedRoute>
-              <NewReportPage />
+            <ProtectedRoute roles={["Admin"]}>
+              <AdminLayout />
             </ProtectedRoute>
           }
-        />
-
-        <Route path="/map" element={<MapPage />} />
-
-        <Route
-          path="/my-reports"
-          element={
-            <ProtectedRoute>
-              <MyReportsPage />
-            </ProtectedRoute>
-          }
-        />
-
-      </Route>
-
-      <Route
-        element={
-          <ProtectedRoute roles={["Admin"]}>
-            <AdminLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route path="/admin" element={<AdminDashboardPage />} />
-      </Route>
-    </Routes>
+        >
+          <Route path="/admin" element={<AdminDashboardPage />} />
+        </Route>
+      </Routes>
+    </Suspense>
   );
 }
 

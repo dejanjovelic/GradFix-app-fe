@@ -1,0 +1,246 @@
+.auth-page {
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  background: #f8fafc;
+}
+
+.auth-card {
+  width: 100%;
+  padding: 1.5rem;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  box-shadow: 0 .75rem 2rem rgba(15, 23, 42, .08);
+
+  &--login {
+    max-width: 28rem;
+  }
+
+  &--register {
+    max-width: 32rem;
+  }
+
+  &__brand {
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  &__logo {
+    width: 3.25rem;
+    height: 3.25rem;
+    margin: 0 auto 1rem;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    background: #2563eb;
+    border-radius: .875rem;
+  }
+
+  &__title {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
+
+  &--login &__title {
+    font-size: 2rem;
+  }
+
+  &__subtitle {
+    margin: .75rem auto 0;
+    max-width: 23rem;
+    color: #64748b;
+    font-size: .95rem;
+    line-height: 1.5;
+  }
+
+  &__footer {
+    margin: 1.5rem 0 0;
+    color: #64748b;
+    text-align: center;
+    font-size: .95rem;
+  }
+
+  &__footer p {
+    margin: 0;
+  }
+
+  &__footer a {
+    color: #2563eb;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  &__footer a:hover {
+    text-decoration: underline;
+  }
+
+  &__footer a:focus-visible {
+    outline: .1875rem solid rgba(37, 99, 235, .3);
+    outline-offset: .1875rem;
+    border-radius: .25rem;
+  }
+
+  &__divider {
+    margin: 1.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    color: #94a3b8;
+    font-size: .85rem;
+  }
+
+  &__divider::before,
+  &__divider::after {
+    content: "";
+    height: 1px;
+    flex: 1;
+    background: #e2e8f0;
+  }
+
+  &__google {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+  }
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  &__field {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+  }
+
+  &__label {
+    color: #334155;
+    font-size: .9rem;
+    font-weight: 600;
+  }
+
+  &__input {
+    width: 100%;
+    min-height: 3rem;
+    padding: .75rem .875rem;
+    color: #0f172a;
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    border-radius: .625rem;
+    font: inherit;
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+
+  &__input::placeholder {
+    color: #94a3b8;
+  }
+
+  &__input:hover {
+    border-color: #94a3b8;
+  }
+
+  &__input:focus {
+    border-color: #2563eb;
+    outline: none;
+    box-shadow: 0 0 0 .1875rem rgba(37, 99, 235, .15);
+  }
+
+  &__input--error {
+    border-color: #dc2626;
+  }
+
+  &__input--error:focus {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 .1875rem rgba(220, 38, 38, .12);
+  }
+
+  &__hint {
+    margin: 0;
+    color: #64748b;
+    font-size: .8rem;
+    line-height: 1.4;
+  }
+
+  &__error {
+    margin: 0;
+    color: #dc2626;
+    font-size: .85rem;
+    line-height: 1.4;
+  }
+
+  &__server-error {
+    padding: .875rem 1rem;
+    color: #991b1b;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: .625rem;
+    font-size: .9rem;
+    line-height: 1.4;
+  }
+
+  &__submit {
+    min-height: 3rem;
+    padding: .75rem 1rem;
+    color: #fff;
+    background: #2563eb;
+    border: 0;
+    border-radius: .625rem;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color .2s ease, transform .1s ease;
+  }
+
+  &__submit:hover:not(:disabled) {
+    background: #1d4ed8;
+  }
+
+  &__submit:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &__submit:focus-visible {
+    outline: .1875rem solid rgba(37, 99, 235, .3);
+    outline-offset: .1875rem;
+  }
+
+  &__submit:disabled {
+    cursor: not-allowed;
+    opacity: .65;
+  }
+}
+
+@media (min-width: 40rem) {
+  .auth-form__row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 48rem) {
+  .auth-page {
+    padding: 4rem 1.5rem;
+  }
+
+  .auth-card {
+    padding: 2.5rem;
+  }
+
+  .auth-card--login {
+    margin-top: 1rem;
+  }
+}

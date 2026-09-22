@@ -5,14 +5,13 @@ import { useForm } from "react-hook-form";
 import { loginUser, loginWithGoogle } from "../../api/authApi";
 import { useAuth } from "../../hooks/useAuth";
 
-import "./login-page.scss";
-import { MapPin } from "lucide-react";
-
-import { GoogleLogin } from "@react-oauth/google";
-
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { getErrorMessage } from "../../utils/getErrorMessage";
+import AuthCard from "../../components/auth/AuthCard";
+import FeedbackMessage from "../../components/shared/FeedbackMessage";
 
 function LoginPage() {
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   const [serverError, setServerError] = useState("");
 
   const { login, isAuthenticated, user } = useAuth();
@@ -107,118 +106,79 @@ function LoginPage() {
   };
 
   return (
-    <main className="login-page">
-      <section className="login-card">
-        <div className="login-card__brand">
-          <span className="login-card__logo" aria-hidden="true">
-            <MapPin />
-          </span>
-
-          <h1 className="login-card__title">GradFix</h1>
-
-          <p className="login-card__subtitle">
-            Report problems in your city and follow their resolution.
-          </p>
-        </div>
-
+    <AuthCard
+      variant="login"
+      title="GradFix"
+      subtitle="Report problems in your city and follow their resolution."
+      footer={<p>Don&apos;t have an account? <Link to="/register">Create an account</Link></p>}
+    >
         <form
-          className="login-form"
+          className="auth-form"
           onSubmit={handleSubmit(onSubmit)}
           noValidate
         >
           {serverError && (
-            <div className="login-form__server-error" role="alert">
+            <FeedbackMessage variant="error" className="auth-form__server-error">
               {serverError}
-            </div>
+            </FeedbackMessage>
           )}
-
-          <div className="login-form__field">
-            <label className="login-form__label" htmlFor="email">
-              Email address
-            </label>
-
+          <div className="auth-form__field">
+            <label className="auth-form__label" htmlFor="email">Email address</label>
             <input
               id="email"
               type="email"
               autoComplete="email"
-              className={`login-form__input ${
-                errors.email ? "login-form__input--error" : ""
-              }`}
+              className={`auth-form__input${errors.email ? " auth-form__input--error" : ""}`}
               aria-invalid={Boolean(errors.email)}
               aria-describedby={errors.email ? "email-error" : undefined}
               {...register("email", {
                 required: "Email address is required.",
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "Enter a valid email address.",
-                },
+                pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Enter a valid email address." },
               })}
             />
-
-            {errors.email && (
-              <p id="email-error" className="login-form__error" role="alert">
-                {errors.email.message}
-              </p>
-            )}
+            {errors.email && <p id="email-error" className="auth-form__error" role="alert">{errors.email.message}</p>}
           </div>
-
-          <div className="login-form__field">
-            <label className="login-form__label" htmlFor="password">
-              Password
-            </label>
-
+          <div className="auth-form__field">
+            <label className="auth-form__label" htmlFor="password">Password</label>
             <input
               id="password"
               type="password"
               autoComplete="current-password"
-              className={`login-form__input ${
-                errors.password ? "login-form__input--error" : ""
-              }`}
+              className={`auth-form__input${errors.password ? " auth-form__input--error" : ""}`}
               aria-invalid={Boolean(errors.password)}
               aria-describedby={errors.password ? "password-error" : undefined}
-              {...register("password", {
-                required: "Password is required.",
-              })}
+              {...register("password", { required: "Password is required." })}
             />
-
-            {errors.password && (
-              <p id="password-error" className="login-form__error" role="alert">
-                {errors.password.message}
-              </p>
-            )}
+            {errors.password && <p id="password-error" className="auth-form__error" role="alert">{errors.password.message}</p>}
           </div>
-
-          <button
-            className="login-form__submit"
-            type="submit"
-            disabled={isSubmitting}
-          >
+          <button className="auth-form__submit" type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Logging in..." : "Log in"}
           </button>
         </form>
 
-        <div className="login-card__divider">
+        <div className="auth-card__divider">
           <span>or</span>
         </div>
-
-        <div className="login-card__google">
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={handleGoogleError}
-            useOneTap={false}
-            theme="outline"
-            size="large"
-            text="continue_with"
-            shape="rectangular"
-          />
-        </div>
-
-        <p className="login-card__register">
-          Don&apos;t have an account?{" "}
-          <Link to="/register">Create an account</Link>
-        </p>
-      </section>
-    </main>
+        {googleClientId ? (
+          <GoogleOAuthProvider clientId={googleClientId}>
+            <div className="auth-card__google">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                useOneTap={false}
+                theme="outline"
+                size="large"
+                text="continue_with"
+                shape="rectangular"
+              />
+            </div>
+          </GoogleOAuthProvider>
+        ) : (
+          <FeedbackMessage variant="warning" className="auth-form__server-error">
+            Google sign-in is temporarily unavailable.
+          </FeedbackMessage>
+        )}
+    </AuthCard>
   );
 }
 
